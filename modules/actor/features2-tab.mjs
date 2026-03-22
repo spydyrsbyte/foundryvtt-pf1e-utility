@@ -918,6 +918,7 @@ export function initializeFeatures2Tab(ActorSheet) {
     label: 'Features',
     template: 'modules/pf1e-utility/templates/actor-features2-tab.hbs',
     data: (actor) => ({ actor }),
+    order: { after: 'inventory' },
     render: (actor, pane) => grid.render(actor, pane),
   });
 }
