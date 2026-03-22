@@ -1,0 +1,50 @@
+<div class="pf1e-util-ig">
+{{#each headers}}
+<div class="pf1e-util-ig-section" data-ig-header="{{id}}">
+
+  {{! ── Section header ── }}
+  <div class="pf1e-util-ig-header" data-collapse-target="ig-hdr-{{id}}">
+    <div class="pf1e-util-ig-title">
+      <i class="fa-solid fa-caret-down pf1e-util-ig-arrow"></i>
+      <span class="pf1e-util-ig-title-text">{{label}}</span>
+    </div>
+    <span class="pf1e-util-ig-count">{{count}}</span>
+    {{#each columnHeaders}}<span class="pf1e-util-ig-col-hdr {{class}}" style="{{style}}">{{label}}</span>{{/each}}
+    {{#each actions}}<i class="{{icon}} pf1e-util-ig-action-btn" data-ig-action="{{id}}" title="{{title}}"></i>{{/each}}
+  </div>
+
+  {{! ── Body ── }}
+  <div class="pf1e-util-ig-body" data-body-id="ig-hdr-{{id}}">
+  {{#each groups}}
+  <div class="pf1e-util-ig-group" data-ig-group="{{id}}">
+
+    {{! ── Subheader ── }}
+    <div class="pf1e-util-ig-subheader" data-collapse-target="ig-grp-{{../id}}-{{id}}">
+      <div class="pf1e-util-ig-title">
+        <span class="pf1e-util-ig-spacer"></span>
+        <i class="fa-solid fa-caret-down pf1e-util-ig-arrow"></i>
+        <span class="pf1e-util-ig-title-text">{{label}}</span>
+      </div>
+      <span class="pf1e-util-ig-count">{{count}}</span>
+      {{#each ../columnHeaders}}<span class="pf1e-util-ig-col-hdr {{class}}" style="{{style}}"></span>{{/each}}
+      {{#each actions}}<i class="{{icon}} pf1e-util-ig-action-btn" data-ig-action="{{id}}" title="{{title}}"></i>{{/each}}
+    </div>
+
+    {{! ── Items ── }}
+    <div class="pf1e-util-ig-group-body" data-body-id="ig-grp-{{../id}}-{{id}}">
+    {{#each items}}
+    <div class="pf1e-util-ig-row" data-ig-item="{{id}}" draggable="true">
+      {{#each cells}}
+      <span class="pf1e-util-ig-cell {{class}}" data-ig-column="{{key}}" style="{{style}}">{{display}}</span>
+      {{/each}}
+    </div>
+    {{/each}}
+    </div>
+
+  </div>
+  {{/each}}
+  </div>
+
+</div>
+{{/each}}
+</div>

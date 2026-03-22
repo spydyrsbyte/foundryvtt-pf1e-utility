@@ -1,0 +1,30 @@
+{
+  "id": "pf1e-utility",
+  "title": "PF1e Util",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "description": "Shared PF1e utility helpers for Foundry VTT modules.",
+  "relationships": {
+    "systems": [
+      {
+        "id": "pf1"
+      }
+    ]
+  },
+  "styles": [
+    "styles/pf1e-utility.css"
+  ],
+  "esmodules": [
+    "modules/pf1e-util.mjs"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ]
+}

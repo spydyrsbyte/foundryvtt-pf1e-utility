@@ -1,0 +1,441 @@
+<div class="pf1e-util-features-tab">
+<div class="pf1e-util-features-scroll">
+
+  {{! ---- Classes ---- }}
+  <div class="pf1e-util-ft-section">
+    <div class="pf1e-util-ft-header" data-collapse-target="classes-body">
+      <div class="pf1e-util-ft-title">
+        <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+        <span class="pf1e-util-ft-text">{{labels.sectionClasses}}</span>
+      </div>
+      <span class="pf1e-util-ft-count">{{classesCount}}</span>
+      <span class="pf1e-util-ft-ability-title"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/magic-palm.svg')" title="Ability Type"></span></span>
+      <span class="pf1e-util-ft-ability-charges"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/battery-pack.svg')" title="Charges"></span></span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-plus pf1e-util-ft-btn" title="Create class feature" data-action="create-class-feature"></i>
+        <i class="fa-solid fa-folder-plus pf1e-util-ft-btn" title="Browse class features" data-action="browse-class-feature"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/gears.svg')" title="Action"></span></span>
+    </div>
+    <div class="pf1e-util-ft-section-body" data-body-id="classes-body">
+    {{#each classes}}
+    <div class="pf1e-util-ft-class-group">
+      <div class="pf1e-util-ft-subheader" data-drop-class="{{name}}" data-drop-class-tag="{{tag}}" data-collapse-target="class-{{@index}}">
+        <div class="pf1e-util-ft-title">
+          <span class="pf1e-util-ft-title-spacer"></span>
+          <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+          <span class="pf1e-util-ft-text">{{name}}{{#if level}} {{level}}{{/if}}</span>
+        </div>
+        <span class="pf1e-util-ft-count">{{features.length}}</span>
+        <span class="pf1e-util-ft-ability-title"></span>
+        <span class="pf1e-util-ft-ability-charges"></span>
+        <div class="pf1e-util-ft-ability-edit">
+          <i class="fa-solid fa-plus pf1e-util-ft-btn" title="Create class feature" data-action="create-class-feature-for" data-class-name="{{name}}"></i>
+          <i class="fa-solid fa-folder-plus pf1e-util-ft-btn" title="Browse class features" data-action="browse-class-feature-for" data-class-name="{{name}}"></i>
+        </div>
+        <span class="pf1e-util-ft-ability-action"></span>
+      </div>
+      <div class="pf1e-util-ft-section-body" data-body-id="class-{{@index}}">
+      {{#each features}}
+      <div class="pf1e-util-ft-row{{#if disabled}} disabled{{/if}}" data-item-id="{{id}}" data-drag-source="class-feature" data-class-name="{{../name}}" data-class-tag="{{../tag}}" draggable="true">
+        <span class="pf1e-util-ft-feature-level pf1e-util-editable-label"
+              data-action="edit-feature-level"
+              data-item-id="{{id}}"
+              data-level="{{featureLevel}}"
+              title="Click to set level gained">{{#if featureLevel}}{{featureLevel}}{{else}}&mdash;{{/if}}</span>
+        <img class="pf1e-util-ft-img" src="{{img}}" title="{{name}}">
+        <span class="pf1e-util-ft-name">{{name}}</span>
+        <span class="pf1e-util-ft-ability-title">{{abilityType}}</span>
+        <span class="pf1e-util-ft-ability-charges">{{#if hasCharges}}{{chargesVal}} / {{chargesMax}}{{/if}}</span>
+        <div class="pf1e-util-ft-ability-edit">
+          <i class="fa-solid fa-edit pf1e-util-ft-btn" data-action="edit-feature" title="Edit"></i>
+          <i class="fa-solid fa-trash pf1e-util-ft-btn" data-action="delete-feature" title="Delete"></i>
+        </div>
+        <span class="pf1e-util-ft-ability-action">
+          {{#if hasAction}}<i class="fa-solid fa-dice-d20 pf1e-util-ft-btn" data-action="use-feature" data-item-id="{{id}}" title="{{actionType}}"></i>{{/if}}
+        </span>
+      </div>
+      {{#each children}}
+      <div class="pf1e-util-ft-row pf1e-util-ft-child-row{{#if @last}} pf1e-util-ft-child-last{{/if}}{{#if disabled}} disabled{{/if}}" data-item-id="{{id}}" data-drag-source="class-feature" data-class-name="{{../../name}}" data-class-tag="{{../../tag}}" draggable="true">
+        <span class="pf1e-util-ft-child-unparent"><i class="fa-solid fa-delete-left" data-action="unparent-feature" title="Remove parent association"></i></span>
+        <span class="pf1e-util-ft-feature-level pf1e-util-editable-label"
+              data-action="edit-feature-level"
+              data-item-id="{{id}}"
+              data-level="{{featureLevel}}"
+              title="Click to set level gained">{{#if featureLevel}}{{featureLevel}}{{else}}&mdash;{{/if}}</span>
+        <img class="pf1e-util-ft-img" src="{{img}}" title="{{name}}">
+        <span class="pf1e-util-ft-name">{{name}}</span>
+        <span class="pf1e-util-ft-ability-title">{{abilityType}}</span>
+        <span class="pf1e-util-ft-ability-charges">{{#if hasCharges}}{{chargesVal}} / {{chargesMax}}{{/if}}</span>
+        <div class="pf1e-util-ft-ability-edit">
+          <i class="fa-solid fa-edit pf1e-util-ft-btn" data-action="edit-feature" title="Edit"></i>
+          <i class="fa-solid fa-trash pf1e-util-ft-btn" data-action="delete-feature" title="Delete"></i>
+        </div>
+        <span class="pf1e-util-ft-ability-action">
+          {{#if hasAction}}<i class="fa-solid fa-dice-d20 pf1e-util-ft-btn" data-action="use-feature" data-item-id="{{id}}" title="{{actionType}}"></i>{{/if}}
+        </span>
+      </div>
+      {{/each}}
+      {{/each}}
+      </div>
+    </div>
+    {{/each}}
+    </div>{{! end classes-body }}
+  </div>
+
+  {{! ---- Feats ---- }}
+  <div class="pf1e-util-ft-section">
+    <div class="pf1e-util-ft-header" data-collapse-target="feats-body">
+      <div class="pf1e-util-ft-title">
+        <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+        <span class="pf1e-util-ft-text">{{labels.sectionFeats}}</span>
+      </div>
+      <span class="pf1e-util-ft-count">{{featsCount}}</span>
+      <span class="pf1e-util-ft-ability-title"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/magic-palm.svg')" title="Ability Type"></span></span>
+      <span class="pf1e-util-ft-ability-charges"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/battery-pack.svg')" title="Charges"></span></span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-plus pf1e-util-ft-btn" title="Create feat" data-action="create-other-feat"></i>
+        <i class="fa-solid fa-folder-plus pf1e-util-ft-btn" title="Browse feats" data-action="browse-other-feat"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/gears.svg')" title="Action"></span></span>
+    </div>
+
+    <div class="pf1e-util-ft-section-body" data-body-id="feats-body">
+
+    {{! Level feats }}
+    {{#if levelSlots.length}}
+    <div class="pf1e-util-ft-feat-group">
+      <div class="pf1e-util-ft-subheader" data-collapse-target="feat-level">
+        <div class="pf1e-util-ft-title">
+          <span class="pf1e-util-ft-title-spacer"></span>
+          <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+          <span class="pf1e-util-ft-text">Level</span>
+        </div>
+        <span class="pf1e-util-ft-count">{{levelSlots.length}}</span>
+        <span class="pf1e-util-ft-ability-title"></span>
+        <span class="pf1e-util-ft-ability-charges"></span>
+        <div class="pf1e-util-ft-ability-edit"></div>
+        <span class="pf1e-util-ft-ability-action"></span>
+      </div>
+      <div class="pf1e-util-ft-section-body" data-body-id="feat-level">
+      {{#each levelSlots}}
+      <div class="pf1e-util-ft-slot-row"
+           data-slot-target="levelFeatSlots"
+           data-slot-level="{{level}}"
+           {{#if filled}}draggable="true" data-drag-source="slot-feat"{{/if}}>
+        <span class="pf1e-util-ft-slot-level">{{#if level}}{{level}}{{/if}}</span>
+        {{#if filled}}
+        <img class="pf1e-util-ft-img" src="{{itemImg}}" title="{{itemName}}">
+        <span class="pf1e-util-ft-name">{{itemName}}</span>
+        <span class="pf1e-util-ft-ability-title">{{abilityType}}</span>
+        <span class="pf1e-util-ft-ability-charges">{{#if hasCharges}}{{chargesVal}} / {{chargesMax}}{{/if}}</span>
+        <div class="pf1e-util-ft-ability-edit">
+          <i class="fa-solid fa-edit pf1e-util-ft-btn" data-action="edit-feature" data-item-id="{{itemId}}" title="Edit"></i>
+          <i class="fa-solid fa-trash pf1e-util-ft-btn" data-action="delete-feature" data-item-id="{{itemId}}" title="Delete"></i>
+        </div>
+        <span class="pf1e-util-ft-ability-action">{{#if hasAction}}<i class="fa-solid fa-dice-d20 pf1e-util-ft-btn" data-action="use-feature" data-item-id="{{itemId}}" title="{{actionType}}"></i>{{/if}}</span>
+        {{else}}
+        <span class="pf1e-util-ft-slot-empty">(empty)</span>
+        <span class="pf1e-util-ft-ability-title"></span>
+        <span class="pf1e-util-ft-ability-charges"></span>
+        <div class="pf1e-util-ft-ability-edit">
+          <i class="fa-solid fa-plus pf1e-util-ft-btn"
+             data-action="create-level-feat"
+             data-slot-level="{{level}}"
+             title="Create new feat"></i>
+          <i class="fa-solid fa-folder-plus pf1e-util-ft-btn"
+             data-action="browse-level-feat"
+             data-slot-level="{{level}}"
+             title="Browse feats"></i>
+        </div>
+        <span class="pf1e-util-ft-ability-action"></span>
+        {{/if}}
+      </div>
+      {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
+    {{! Bonus feat groups }}
+    {{#each bonusFeatGroups}}
+    <div class="pf1e-util-ft-feat-group">
+      <div class="pf1e-util-ft-subheader" data-collapse-target="feat-bonus-{{@index}}">
+        <div class="pf1e-util-ft-title">
+          <span class="pf1e-util-ft-title-spacer"></span>
+          <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+          <span class="pf1e-util-ft-text">{{label}}</span>
+        </div>
+        <span class="pf1e-util-ft-count">{{slots.length}}</span>
+        <span class="pf1e-util-ft-ability-title"></span>
+        <span class="pf1e-util-ft-ability-charges"></span>
+        <div class="pf1e-util-ft-ability-edit"></div>
+        <span class="pf1e-util-ft-ability-action"></span>
+      </div>
+      <div class="pf1e-util-ft-section-body" data-body-id="feat-bonus-{{@index}}">
+      {{#each slots}}
+      <div class="pf1e-util-ft-slot-row"
+           data-slot-target="bonusFeatSlots"
+           data-slot-level="{{level}}"
+           data-granter-id="{{../granterId}}"
+           {{#if filled}}draggable="true" data-drag-source="slot-feat"{{/if}}>
+        <span class="pf1e-util-ft-slot-level">{{#if level}}{{level}}{{/if}}</span>
+        {{#if filled}}
+        <img class="pf1e-util-ft-img" src="{{itemImg}}" title="{{itemName}}">
+        <span class="pf1e-util-ft-name">{{itemName}}</span>
+        <span class="pf1e-util-ft-ability-title">{{abilityType}}</span>
+        <span class="pf1e-util-ft-ability-charges">{{#if hasCharges}}{{chargesVal}} / {{chargesMax}}{{/if}}</span>
+        <div class="pf1e-util-ft-ability-edit">
+          <i class="fa-solid fa-edit pf1e-util-ft-btn" data-action="edit-feature" data-item-id="{{itemId}}" title="Edit"></i>
+          <i class="fa-solid fa-trash pf1e-util-ft-btn" data-action="delete-feature" data-item-id="{{itemId}}" title="Delete"></i>
+        </div>
+        <span class="pf1e-util-ft-ability-action">{{#if hasAction}}<i class="fa-solid fa-dice-d20 pf1e-util-ft-btn" data-action="use-feature" data-item-id="{{itemId}}" title="{{actionType}}"></i>{{/if}}</span>
+        {{else}}
+        <span class="pf1e-util-ft-slot-empty">(empty)</span>
+        <span class="pf1e-util-ft-ability-title"></span>
+        <span class="pf1e-util-ft-ability-charges"></span>
+        <div class="pf1e-util-ft-ability-edit">
+          <i class="fa-solid fa-plus pf1e-util-ft-btn"
+             data-action="create-bonus-feat"
+             data-granter-id="{{../granterId}}"
+             data-slot-level="{{level}}"
+             title="Create new feat"></i>
+          <i class="fa-solid fa-folder-plus pf1e-util-ft-btn"
+             data-action="browse-bonus-feat"
+             data-granter-id="{{../granterId}}"
+             data-slot-level="{{level}}"
+             data-group-label="{{../label}}"
+             title="Browse feats"></i>
+        </div>
+        <span class="pf1e-util-ft-ability-action"></span>
+        {{/if}}
+      </div>
+      {{/each}}
+      </div>
+    </div>
+    {{/each}}
+
+    {{! Feats: Other — unslotted feats }}
+    {{#if otherFeats.length}}
+    <div class="pf1e-util-ft-feat-group">
+      <div class="pf1e-util-ft-subheader" data-collapse-target="feat-other">
+        <div class="pf1e-util-ft-title">
+          <span class="pf1e-util-ft-title-spacer"></span>
+          <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+          <span class="pf1e-util-ft-text">Other</span>
+        </div>
+        <span class="pf1e-util-ft-count">{{otherFeats.length}}</span>
+        <span class="pf1e-util-ft-ability-title"></span>
+        <span class="pf1e-util-ft-ability-charges"></span>
+        <div class="pf1e-util-ft-ability-edit"></div>
+        <span class="pf1e-util-ft-ability-action"></span>
+      </div>
+      <div class="pf1e-util-ft-section-body" data-body-id="feat-other">
+      {{#each otherFeats}}
+      <div class="pf1e-util-ft-row" data-item-id="{{id}}" data-drag-source="other-feat" draggable="true">
+        <img class="pf1e-util-ft-img" src="{{img}}" title="{{name}}">
+        <span class="pf1e-util-ft-name">{{name}}</span>
+        <span class="pf1e-util-ft-ability-title">{{abilityType}}</span>
+        <span class="pf1e-util-ft-ability-charges">{{#if hasCharges}}{{chargesVal}} / {{chargesMax}}{{/if}}</span>
+        <div class="pf1e-util-ft-ability-edit">
+          <i class="fa-solid fa-edit pf1e-util-ft-btn" data-action="edit-feature" title="Edit"></i>
+          <i class="fa-solid fa-trash pf1e-util-ft-btn" data-action="delete-feature" title="Delete"></i>
+        </div>
+        <span class="pf1e-util-ft-ability-action">{{#if hasAction}}<i class="fa-solid fa-dice-d20 pf1e-util-ft-btn" data-action="use-feature" data-item-id="{{id}}" title="{{actionType}}"></i>{{/if}}</span>
+      </div>
+      {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
+    {{#unless levelSlots.length}}{{#unless bonusFeatGroups.length}}
+    <div class="pf1e-util-ft-empty">No feat sources found. Add class features or changes targeting bonusFeats.</div>
+    {{/unless}}{{/unless}}
+
+    </div>{{! end feats-body }}
+  </div>
+
+  {{! ---- Traits ---- }}
+  <div class="pf1e-util-ft-section">
+    <div class="pf1e-util-ft-header" data-collapse-target="traits-body">
+      <div class="pf1e-util-ft-title">
+        <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+        <span class="pf1e-util-ft-text">{{labels.sectionTraits}}</span>
+      </div>
+      <span class="pf1e-util-ft-count">{{traitsCount}}</span>
+      <span class="pf1e-util-ft-ability-title"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/magic-palm.svg')" title="Ability Type"></span></span>
+      <span class="pf1e-util-ft-ability-charges"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/battery-pack.svg')" title="Charges"></span></span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-plus pf1e-util-ft-btn" title="Create trait" data-action="create-other-trait"></i>
+        <i class="fa-solid fa-folder-plus pf1e-util-ft-btn" title="Browse traits" data-action="browse-other-trait"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/gears.svg')" title="Action"></span></span>
+    </div>
+
+    <div class="pf1e-util-ft-section-body" data-body-id="traits-body">
+
+    {{#each traitSlots}}
+    <div class="pf1e-util-ft-slot-row"
+         data-slot-target="traitSlots"
+         data-slot-subtype="trait"
+         {{#if filled}}draggable="true" data-drag-source="slot-feat"{{/if}}>
+      <span class="pf1e-util-ft-slot-level"></span>
+      {{#if filled}}
+      <img class="pf1e-util-ft-img" src="{{itemImg}}" title="{{itemName}}">
+      <span class="pf1e-util-ft-name">{{itemName}}</span>
+      <span class="pf1e-util-ft-ability-title">{{abilityType}}</span>
+      <span class="pf1e-util-ft-ability-charges">{{#if hasCharges}}{{chargesVal}} / {{chargesMax}}{{/if}}</span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-edit pf1e-util-ft-btn" data-action="edit-feature" data-item-id="{{itemId}}" title="Edit"></i>
+        <i class="fa-solid fa-trash pf1e-util-ft-btn" data-action="delete-feature" data-item-id="{{itemId}}" title="Delete"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action">{{#if hasAction}}<i class="fa-solid fa-dice-d20 pf1e-util-ft-btn" data-action="use-feature" data-item-id="{{itemId}}" title="{{actionType}}"></i>{{/if}}</span>
+      {{else}}
+      <span class="pf1e-util-ft-slot-empty">(empty)</span>
+      <span class="pf1e-util-ft-ability-title"></span>
+      <span class="pf1e-util-ft-ability-charges"></span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-plus pf1e-util-ft-btn" data-action="create-trait-slot" title="Create new trait"></i>
+        <i class="fa-solid fa-folder-plus pf1e-util-ft-btn" data-action="browse-trait-slot" title="Browse traits"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action"></span>
+      {{/if}}
+    </div>
+    {{/each}}
+
+    {{#if otherTraits.length}}
+    <div class="pf1e-util-ft-feat-group">
+      <div class="pf1e-util-ft-subheader" data-collapse-target="trait-other">
+        <div class="pf1e-util-ft-title">
+          <span class="pf1e-util-ft-title-spacer"></span>
+          <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+          <span class="pf1e-util-ft-text">Other</span>
+        </div>
+        <span class="pf1e-util-ft-count">{{otherTraits.length}}</span>
+        <span class="pf1e-util-ft-ability-title"></span>
+        <span class="pf1e-util-ft-ability-charges"></span>
+        <div class="pf1e-util-ft-ability-edit"></div>
+        <span class="pf1e-util-ft-ability-action"></span>
+      </div>
+      <div class="pf1e-util-ft-section-body" data-body-id="trait-other">
+      {{#each otherTraits}}
+      <div class="pf1e-util-ft-row" data-item-id="{{id}}" data-drag-source="other-trait" draggable="true">
+        <img class="pf1e-util-ft-img" src="{{img}}" title="{{name}}">
+        <span class="pf1e-util-ft-name">{{name}}</span>
+        <span class="pf1e-util-ft-ability-title">{{abilityType}}</span>
+        <span class="pf1e-util-ft-ability-charges">{{#if hasCharges}}{{chargesVal}} / {{chargesMax}}{{/if}}</span>
+        <div class="pf1e-util-ft-ability-edit">
+          <i class="fa-solid fa-edit pf1e-util-ft-btn" data-action="edit-feature" data-item-id="{{id}}" title="Edit"></i>
+          <i class="fa-solid fa-trash pf1e-util-ft-btn" data-action="delete-feature" data-item-id="{{id}}" title="Delete"></i>
+        </div>
+        <span class="pf1e-util-ft-ability-action">{{#if hasAction}}<i class="fa-solid fa-dice-d20 pf1e-util-ft-btn" data-action="use-feature" data-item-id="{{id}}" title="{{actionType}}"></i>{{/if}}</span>
+      </div>
+      {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
+    </div>{{! end traits-body }}
+  </div>
+
+  {{! ---- Racial Traits ---- }}
+  <div class="pf1e-util-ft-section">
+    <div class="pf1e-util-ft-header" data-collapse-target="racial-body">
+      <div class="pf1e-util-ft-title">
+        <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+        <span class="pf1e-util-ft-text">{{labels.sectionRacialTraits}}</span>
+      </div>
+      <span class="pf1e-util-ft-count">{{racialTraits.length}}</span>
+      <span class="pf1e-util-ft-ability-title"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/magic-palm.svg')" title="Ability Type"></span></span>
+      <span class="pf1e-util-ft-ability-charges"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/battery-pack.svg')" title="Charges"></span></span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-plus pf1e-util-ft-btn" title="Create racial trait" data-action="create-racial-trait"></i>
+        <i class="fa-solid fa-folder-plus pf1e-util-ft-btn" title="Browse racial traits" data-action="browse-racial-trait"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/gears.svg')" title="Action"></span></span>
+    </div>
+
+    <div class="pf1e-util-ft-section-body" data-body-id="racial-body">
+    {{#each racialTraits}}
+    <div class="pf1e-util-ft-row" data-item-id="{{id}}" data-drag-source="racial-trait" draggable="true">
+      <img class="pf1e-util-ft-img" src="{{img}}" title="{{name}}">
+      <span class="pf1e-util-ft-name">{{name}}</span>
+      <span class="pf1e-util-ft-ability-title">{{abilityType}}</span>
+      <span class="pf1e-util-ft-ability-charges">{{#if hasCharges}}{{chargesVal}} / {{chargesMax}}{{/if}}</span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-edit pf1e-util-ft-btn" data-action="edit-feature" data-item-id="{{id}}" title="Edit"></i>
+        <i class="fa-solid fa-trash pf1e-util-ft-btn" data-action="delete-feature" data-item-id="{{id}}" title="Delete"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action">{{#if hasAction}}<i class="fa-solid fa-dice-d20 pf1e-util-ft-btn" data-action="use-feature" data-item-id="{{id}}" title="{{actionType}}"></i>{{/if}}</span>
+    </div>
+    {{/each}}
+    </div>{{! end racial-body }}
+  </div>
+
+  {{! ---- Templates ---- }}
+  <div class="pf1e-util-ft-section">
+    <div class="pf1e-util-ft-header" data-collapse-target="templates-body">
+      <div class="pf1e-util-ft-title">
+        <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+        <span class="pf1e-util-ft-text">{{labels.sectionTemplates}}</span>
+      </div>
+      <span class="pf1e-util-ft-count">{{templates.length}}</span>
+      <span class="pf1e-util-ft-ability-title"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/magic-palm.svg')" title="Ability Type"></span></span>
+      <span class="pf1e-util-ft-ability-charges"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/battery-pack.svg')" title="Charges"></span></span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-plus pf1e-util-ft-btn" title="Create template" data-action="create-template"></i>
+        <i class="fa-solid fa-folder-plus pf1e-util-ft-btn" title="Browse templates" data-action="browse-template"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/gears.svg')" title="Action"></span></span>
+    </div>
+    <div class="pf1e-util-ft-section-body" data-body-id="templates-body">
+    {{#each templates}}
+    <div class="pf1e-util-ft-row" data-item-id="{{id}}" data-drag-source="template-feat" draggable="true">
+      <img class="pf1e-util-ft-img" src="{{img}}" title="{{name}}">
+      <span class="pf1e-util-ft-name">{{name}}</span>
+      <span class="pf1e-util-ft-ability-title">{{abilityType}}</span>
+      <span class="pf1e-util-ft-ability-charges">{{#if hasCharges}}{{chargesVal}} / {{chargesMax}}{{/if}}</span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-edit pf1e-util-ft-btn" data-action="edit-feature" data-item-id="{{id}}" title="Edit"></i>
+        <i class="fa-solid fa-trash pf1e-util-ft-btn" data-action="delete-feature" data-item-id="{{id}}" title="Delete"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action">{{#if hasAction}}<i class="fa-solid fa-dice-d20 pf1e-util-ft-btn" data-action="use-feature" data-item-id="{{id}}" title="{{actionType}}"></i>{{/if}}</span>
+    </div>
+    {{/each}}
+    </div>{{! end templates-body }}
+  </div>
+
+  {{! ---- Miscellaneous ---- }}
+  <div class="pf1e-util-ft-section">
+    <div class="pf1e-util-ft-header" data-collapse-target="misc-body">
+      <div class="pf1e-util-ft-title">
+        <i class="fa-solid fa-caret-down pf1e-util-ft-arrow"></i>
+        <span class="pf1e-util-ft-text">{{labels.sectionMiscellaneous}}</span>
+      </div>
+      <span class="pf1e-util-ft-count">{{miscFeatures.length}}</span>
+      <span class="pf1e-util-ft-ability-title"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/magic-palm.svg')" title="Ability Type"></span></span>
+      <span class="pf1e-util-ft-ability-charges"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/battery-pack.svg')" title="Charges"></span></span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-plus pf1e-util-ft-btn" title="Create miscellaneous feature" data-action="create-misc"></i>
+        <i class="fa-solid fa-folder-plus pf1e-util-ft-btn" title="Browse miscellaneous features" data-action="browse-misc"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action"><span class="pf1e-util-ft-col-icon" style="mask-image: url('systems/pf1/icons/actions/gears.svg')" title="Action"></span></span>
+    </div>
+    <div class="pf1e-util-ft-section-body" data-body-id="misc-body">
+    {{#each miscFeatures}}
+    <div class="pf1e-util-ft-row" data-item-id="{{id}}" data-drag-source="misc-feat" draggable="true">
+      <img class="pf1e-util-ft-img" src="{{img}}" title="{{name}}">
+      <span class="pf1e-util-ft-name">{{name}}</span>
+      <span class="pf1e-util-ft-ability-title">{{abilityType}}</span>
+      <span class="pf1e-util-ft-ability-charges">{{#if hasCharges}}{{chargesVal}} / {{chargesMax}}{{/if}}</span>
+      <div class="pf1e-util-ft-ability-edit">
+        <i class="fa-solid fa-edit pf1e-util-ft-btn" data-action="edit-feature" data-item-id="{{id}}" title="Edit"></i>
+        <i class="fa-solid fa-trash pf1e-util-ft-btn" data-action="delete-feature" data-item-id="{{id}}" title="Delete"></i>
+      </div>
+      <span class="pf1e-util-ft-ability-action">{{#if hasAction}}<i class="fa-solid fa-dice-d20 pf1e-util-ft-btn" data-action="use-feature" data-item-id="{{id}}" title="{{actionType}}"></i>{{/if}}</span>
+    </div>
+    {{/each}}
+    </div>{{! end misc-body }}
+  </div>
+
+</div>{{! end scroll }}
+</div>

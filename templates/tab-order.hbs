@@ -1,0 +1,30 @@
+<form>
+  <p class="notes">Drag to reorder tabs. Drag into <strong>Hidden</strong> to remove from sheet.</p>
+
+  {{#if tabs.length}}
+  <p class="tab-order-section-label">Visible</p>
+  <nav class="sheet-navigation tabs tab-order-nav" data-group="preview" data-zone="visible">
+    {{#each tabs}}
+    <a class="item tab-order-item" data-tab-id="{{this.id}}" draggable="true">
+      {{this.label}}
+    </a>
+    {{/each}}
+  </nav>
+
+  <p class="tab-order-section-label">Hidden</p>
+  <nav class="sheet-navigation tabs tab-order-nav tab-order-hidden" data-group="hidden" data-zone="hidden">
+    {{#each hidden}}
+    <a class="item tab-order-item" data-tab-id="{{this.id}}" draggable="true">
+      {{this.label}}
+    </a>
+    {{/each}}
+  </nav>
+  {{else}}
+  <p class="notification warning">Open a character sheet first so the full tab list can be detected.</p>
+  {{/if}}
+
+  <footer class="sheet-footer">
+    <button type="button" data-action="reset"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+    <button type="button" data-action="save"><i class="fa-solid fa-save"></i> Save</button>
+  </footer>
+</form>

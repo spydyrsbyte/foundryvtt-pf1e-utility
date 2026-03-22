@@ -1,0 +1,67 @@
+<div class="pf1e-util-help-content">
+  <h1>Actor Script Calls</h1>
+
+  <p>
+    Actor Script Calls are JavaScript snippets that run automatically when specific events occur
+    on an actor. They work similarly to Item Script Calls but are configured directly on the actor
+    and react to combat, movement, and update events.
+  </p>
+
+  <h2>Variables</h2>
+  <p>The following variables are always available inside every script call.</p>
+  <table>
+    <thead><tr><th>Name</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>actor</code></td><td>The actor this script call belongs to.</td></tr>
+      <tr><td><code>combat</code></td><td>The active Combat instance. Available on all combat events.</td></tr>
+      <tr><td><code>token</code></td><td>The token document. Available on <em>Move</em> events.</td></tr>
+      <tr><td><code>position</code></td><td>The final <code>{x, y}</code> position. Available on <em>Move</em> events.</td></tr>
+      <tr><td><code>updateData</code></td><td>The update delta. Available on <em>Update</em> events.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Events</h2>
+
+  <h3>Turn Start</h3>
+  <p>Called when it becomes this actor's turn in combat.</p>
+
+  <h3>Turn End</h3>
+  <p>Called when this actor's turn ends in combat.</p>
+
+  <h3>Round Start</h3>
+  <p>Called at the start of each combat round for every actor participating in that combat.</p>
+
+  <h3>Round End</h3>
+  <p>Called at the end of each combat round for every actor participating in that combat.</p>
+
+  <h3>Combat Start</h3>
+  <p>Called when combat begins for every actor participating in that combat.</p>
+
+  <h3>Combat End</h3>
+  <p>Called when combat ends for every actor that was participating.</p>
+
+  <h3>Update</h3>
+  <p>
+    Called whenever the actor's data is updated. The script receives <code>updateData</code>
+    containing only the changed fields. Updates triggered by the script itself are ignored
+    to prevent infinite loops.
+  </p>
+
+  <h3>Move</h3>
+  <p>
+    Called when one of the actor's tokens is moved. Fires at the final position only — not
+    during animation. Receives <code>token</code> and <code>position</code>.
+  </p>
+
+  <h2>Example</h2>
+  <pre><code>// Turn Start — log a reminder
+console.log(`It is ${actor.name}'s turn!`);
+
+// Move — react to final position
+console.log(`${actor.name} moved to`, position);
+
+// Update — react to HP changes
+if (updateData?.system?.attributes?.hp) {
+  console.log(`${actor.name} HP changed`);
+}</code></pre>
+</div>

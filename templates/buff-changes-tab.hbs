@@ -1,0 +1,116 @@
+<div class="pf1e-util-changes-tab" data-subtab="modifiers">
+
+  {{! ---- Sub-tab bar ---- }}
+  <div class="pf1e-util-subtab-bar">
+    <span class="pf1e-util-subtab active" data-subtab="modifiers">Modifiers</span>
+    <span class="pf1e-util-subtab" data-subtab="context">Context</span>
+  </div>
+
+  {{! ---- Main body: tree + panel ---- }}
+  <div class="pf1e-util-changes-body">
+
+    {{! Left tree }}
+    <div class="pf1e-util-changes-tree">
+
+      {{! Modifiers tree: buffTargets + flags }}
+      <div class="pf1e-util-tree-modifiers">
+        {{#each changesTree}}
+        <div class="pf1e-util-tree-cat" data-cat-id="{{id}}">
+          <span class="pf1e-util-tree-caret">▶</span>{{label}}
+        </div>
+        <div class="pf1e-util-tree-children" data-parent="{{id}}">
+          {{#each children}}
+          <div class="pf1e-util-tree-leaf"
+               data-target="{{id}}" data-is-flag="{{isFlag}}"
+               draggable="true">{{label}}</div>
+          {{/each}}
+        </div>
+        {{/each}}
+      </div>
+
+      {{! Context tree: contextNoteTargets }}
+      <div class="pf1e-util-tree-context">
+        {{#each notesTree}}
+        <div class="pf1e-util-tree-cat" data-cat-id="ctx-{{id}}">
+          <span class="pf1e-util-tree-caret">▶</span>{{label}}
+        </div>
+        <div class="pf1e-util-tree-children" data-parent="ctx-{{id}}">
+          {{#each children}}
+          <div class="pf1e-util-tree-leaf"
+               data-target="{{id}}" data-is-flag="false"
+               draggable="true">{{label}}</div>
+          {{/each}}
+        </div>
+        {{/each}}
+      </div>
+
+    </div>{{! end .pf1e-util-changes-tree }}
+
+    {{! Right panel }}
+    <div class="pf1e-util-changes-panel">
+
+      {{! Modifiers content }}
+      <div class="pf1e-util-content-modifiers pf1e-util-changes-content">
+        <div class="pf1e-util-changes-list">
+          {{#each changes}}
+          <div class="pf1e-util-change" data-change-idx="{{idx}}"
+               data-change-category="{{category}}" data-change-target="{{target}}">
+            <div class="pf1e-util-change-row1">
+              <i class="fa-solid fa-plus-minus pf1e-util-op-btn{{#if isAdd}} active{{/if}}"
+                 data-action="op-add" data-idx="{{idx}}" title="Add"></i>
+              <i class="fa-solid fa-equals pf1e-util-op-btn{{#if isSet}} active{{/if}}"
+                 data-action="op-set" data-idx="{{idx}}" title="Set"></i>
+              <span class="pf1e-util-change-name">{{label}}</span>
+              <span class="pf1e-util-type-label pf1e-util-editable-label"
+                    data-action="type-edit" data-idx="{{idx}}" data-current-type="{{type}}"
+                    title="Click to change type">{{typeName}}</span>
+              <span class="pf1e-util-priority pf1e-util-editable-label"
+                    data-action="priority-edit" data-idx="{{idx}}"
+                    title="Click to edit priority">{{priority}}</span>
+              <i class="fa-solid fa-trash pf1e-util-delete-btn" data-action="delete-change"
+                 data-idx="{{idx}}" title="Delete"></i>
+            </div>
+            <div class="pf1e-util-change-row2">
+              <span class="pf1e-util-formula-label pf1e-util-editable-label"
+                    data-action="formula-edit" data-idx="{{idx}}" data-formula="{{formula}}"
+                    title="Click to edit formula">{{formulaDisplay}}</span>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+
+        {{#if flags.length}}
+        <div class="pf1e-util-flags-section">
+          <div class="pf1e-util-section-label">— Flags —</div>
+          {{#each flags}}
+          <div class="pf1e-util-flag" data-flag-key="{{key}}">
+            <span class="pf1e-util-flag-name">{{label}}</span>
+            <i class="fa-solid fa-trash pf1e-util-delete-btn" data-action="delete-flag"
+               data-flag-key="{{key}}" title="Remove flag"></i>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+
+      {{! Context notes content }}
+      <div class="pf1e-util-content-context pf1e-util-changes-content">
+        {{#if notes.length}}
+        {{#each notes}}
+        <div class="pf1e-util-note" data-note-idx="{{idx}}">
+          <span class="pf1e-util-note-target">{{targetLabel}}</span>
+          <span class="pf1e-util-note-text pf1e-util-editable-label"
+                data-action="note-edit" data-idx="{{idx}}" data-text="{{text}}"
+                title="Click to edit">{{textDisplay}}</span>
+          <i class="fa-solid fa-trash pf1e-util-delete-btn" data-action="delete-note"
+             data-idx="{{idx}}" title="Delete note"></i>
+        </div>
+        {{/each}}
+        {{else}}
+        <div class="pf1e-util-notes-empty">Drag a target from the tree to add a note</div>
+        {{/if}}
+      </div>
+
+    </div>{{! end .pf1e-util-changes-panel }}
+  </div>{{! end .pf1e-util-changes-body }}
+</div>

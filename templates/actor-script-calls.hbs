@@ -1,0 +1,72 @@
+<div class="flexcol">
+
+  {{!-- Flags (stub) --}}
+  <div class="flags">
+    <h3 class="form-header">
+      <i class="fa-solid fa-info-circle fa-fw" inert></i>
+      Flags
+    </h3>
+    <p class="hint">Coming soon.</p>
+  </div>
+
+  {{!-- Script Calls --}}
+  <div class="script-calls">
+    <h3 class="form-header">
+      <a class="pf1e-util-help-open" data-help="actor-script-calls"><i class="fa-solid fa-info-circle" inert></i></a>
+      Script Calls
+    </h3>
+
+    {{#each scriptCalls}}
+    <ol class="item-list" data-type="{{this.type}}">
+      <li class="item-list-header flexrow">
+        <div class="item-name">
+          <h3>{{this.label}}</h3>
+        </div>
+
+        {{#if ../isGM}}
+        <div class="item-detail item-hidden">
+          <i class="fa-solid fa-eye-slash" data-tooltip="Hidden"></i>
+        </div>
+        {{/if}}
+
+        <div class="item-controls">
+          {{#if ../owner}}
+          <a class="item-control item-create" data-action="sc-add" data-type="{{this.type}}" data-tooltip="Add Script">
+            <i class="fa-solid fa-plus" inert></i>
+          </a>
+          {{/if}}
+        </div>
+      </li>
+
+      <ol class="item-list">
+        {{#each this.items}}
+        <li class="item flexrow" data-sc-id="{{this.id}}">
+          <div class="item-name">
+            <div class="item-image no-hover" style="background-image: url('icons/svg/dice-target.svg')"></div>
+            <h4>{{this.name}}</h4>
+          </div>
+
+          {{#if @root.isGM}}
+          <div class="item-detail item-hidden">
+            <a class="item-control item-hide" data-action="sc-toggle" data-tooltip="Toggle Enabled">
+              <span class="hidden-icon">
+                <i class="fa-solid {{#if this.enabled}}fa-check is-visible{{else}}fa-times is-hidden{{/if}} fa-fw" inert></i>
+              </span>
+            </a>
+          </div>
+          {{/if}}
+
+          <div class="item-controls">
+            <a class="item-control item-edit" data-action="sc-edit" data-tooltip="Edit"><i class="fa-solid fa-edit" inert></i></a>
+            {{#if @root.owner}}
+            <a class="item-control item-delete" data-action="sc-delete" data-tooltip="Delete"><i class="fa-solid fa-trash" inert></i></a>
+            {{/if}}
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+    </ol>
+    {{/each}}
+  </div>
+
+</div>

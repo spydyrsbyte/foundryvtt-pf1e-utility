@@ -1,0 +1,12 @@
+{
+  "PF1EUtility": {
+    "Features": {
+      "SectionClasses": "Classes",
+      "SectionFeats": "Feats",
+      "SectionTraits": "Traits",
+      "SectionRacialTraits": "Racial Traits",
+      "SectionTemplates": "Templates",
+      "SectionMiscellaneous": "Miscellaneous"
+    }
+  }
+}

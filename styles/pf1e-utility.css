@@ -1,0 +1,1147 @@
+/* Object Browser */
+.pf1e-util-object-browser {
+  font-family: monospace;
+  font-size: 0.82em;
+  overflow: auto;
+  height: 100%;
+  padding: 0.75rem;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  box-sizing: border-box;
+}
+
+.pf1e-util-object-browser .obj-node { margin: 0; }
+.pf1e-util-object-browser .obj-header { cursor: pointer; display: flex; align-items: center; gap: 0.25rem; padding: 1px 0; user-select: none; }
+.pf1e-util-object-browser .obj-header:hover { background: rgba(255,255,255,0.05); }
+.pf1e-util-object-browser .obj-caret { transition: transform 0.1s; width: 0.6em; flex-shrink: 0; }
+.pf1e-util-object-browser .obj-node.obj-open > .obj-header .obj-caret { transform: rotate(90deg); }
+.pf1e-util-object-browser .obj-children { display: none; padding-left: 1.2em; border-left: 1px solid rgba(255,255,255,0.1); margin-left: 0.3em; }
+.pf1e-util-object-browser .obj-node.obj-open > .obj-children { display: block; }
+.pf1e-util-object-browser .obj-leaf { padding: 1px 0 1px 1.1em; }
+.pf1e-util-object-browser .obj-key { color: #9cdcfe; }
+.pf1e-util-object-browser .obj-colon { opacity: 0.5; }
+.pf1e-util-object-browser .obj-summary { color: #888; }
+.pf1e-util-object-browser .obj-string { color: #ce9178; }
+.pf1e-util-object-browser .obj-number { color: #b5cea8; }
+.pf1e-util-object-browser .obj-boolean { color: #569cd6; }
+.pf1e-util-object-browser .obj-null { color: #888; font-style: italic; }
+
+.pf1e-util-help-viewer {
+  padding: 0.75rem 1rem;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.pf1e-util-help-viewer h1 { font-size: 1.4em; margin-bottom: 0.5rem; }
+.pf1e-util-help-viewer h2 { font-size: 1.15em; margin: 1rem 0 0.25rem; }
+.pf1e-util-help-viewer h3 { font-size: 1em; margin: 0.75rem 0 0.15rem; font-weight: bold; }
+.pf1e-util-help-viewer p  { margin: 0.25rem 0; }
+.pf1e-util-help-viewer table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+.pf1e-util-help-viewer th, .pf1e-util-help-viewer td { border: 1px solid var(--color-border-dark, #666); padding: 0.25rem 0.5rem; text-align: left; }
+.pf1e-util-help-viewer pre { background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 3px; overflow-x: auto; }
+.pf1e-util-help-viewer code { font-family: monospace; font-size: 0.85em; }
+
+.pf1e-util-script-call-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pf1e-util-script-call-editor .form-content {
+  flex: 1;
+  min-height: 0;
+}
+
+.pf1e-util-script-call-editor .sc-editor-footer {
+  padding: 0.5rem;
+  border-top: 1px solid var(--color-border-dark, #666);
+}
+
+.pf1e-util-script-call-editor .sc-editor-footer button {
+  width: 100%;
+  padding: 0.5rem;
+}
+
+#pf1e-util-tab-order {
+  min-width: max-content;
+}
+
+.tab-order-section-label {
+  margin: 8px 0 2px;
+  font-weight: bold;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.tab-order-nav {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  min-height: 28px;
+  margin-bottom: 4px;
+}
+
+.tab-order-hidden {
+  opacity: 0.5;
+}
+
+.tab-order-hidden:empty::after {
+  content: "Drop here to hide";
+  padding: 4px 10px;
+  font-style: italic;
+  opacity: 0.5;
+  font-size: 0.85em;
+}
+
+.tab-order-item {
+  cursor: grab;
+  user-select: none;
+}
+
+.tab-order-item.dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+/* ---- Roll Visibility ---- */
+
+/* Hide Bonus: in the click-expand view, hide modifier lines, show raw dice roll */
+.pf1e-util-hide-bonus .dice-tooltip .tooltip-part:not(:has(.dice-rolls)) {
+  display: none;
+}
+
+/* Hide Roll: in the click-expand view, hide modifier lines AND replace dice result with ???? */
+.pf1e-util-hide-roll .dice-tooltip .tooltip-part:not(:has(.dice-rolls)) {
+  display: none;
+}
+.pf1e-util-hide-roll .dice-tooltip .tooltip-part:has(.dice-rolls) .dice-rolls,
+.pf1e-util-hide-roll .dice-tooltip .tooltip-part:has(.dice-rolls) .part-formula {
+  display: none;
+}
+.pf1e-util-hide-roll .dice-tooltip .tooltip-part:has(.dice-rolls) .part-total {
+  font-size: 0;
+}
+.pf1e-util-hide-roll .dice-tooltip .tooltip-part:has(.dice-rolls) .part-total::after {
+  content: "????";
+  font-size: var(--font-size-14, 0.875rem);
+}
+
+/* Hover tooltip is suppressed entirely via JS (game.tooltip.deactivate) */
+
+/* ---- Changes Tab ---- */
+
+.pf1e-util-changes-tab {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Sub-tab bar */
+.pf1e-util-subtab-bar {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-border-dark, #999);
+  gap: 2px;
+  padding: 0 4px;
+}
+
+.pf1e-util-subtab {
+  padding: 3px 12px;
+  cursor: pointer;
+  font-size: 0.85em;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  user-select: none;
+}
+
+.pf1e-util-subtab:hover { opacity: 0.8; }
+.pf1e-util-subtab.active { border-bottom-color: currentColor; font-weight: bold; }
+
+/* Main body: tree + panel side by side */
+.pf1e-util-changes-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Show/hide tree sections based on active sub-tab */
+.pf1e-util-changes-tab[data-subtab="modifiers"] .pf1e-util-tree-context { display: none; }
+.pf1e-util-changes-tab[data-subtab="context"]   .pf1e-util-tree-modifiers { display: none; }
+
+/* Show/hide content sections based on active sub-tab */
+.pf1e-util-changes-tab[data-subtab="modifiers"] .pf1e-util-content-context { display: none; }
+.pf1e-util-changes-tab[data-subtab="context"]   .pf1e-util-content-modifiers { display: none; }
+
+.pf1e-util-changes-tree {
+  width: 160px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  border-right: 1px solid var(--color-border-dark, #999);
+  padding: 0.25rem 0;
+  font-size: 0.85em;
+}
+
+.pf1e-util-tree-cat {
+  padding: 2px 6px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.pf1e-util-tree-cat:hover { background: rgba(0,0,0,0.07); }
+
+.pf1e-util-tree-caret {
+  font-size: 0.65em;
+  transition: transform 0.1s;
+  flex-shrink: 0;
+}
+
+.pf1e-util-tree-children { display: none; padding-left: 12px; }
+.pf1e-util-tree-children.open { display: block; }
+
+.pf1e-util-tree-leaf {
+  padding: 2px 6px 2px 14px;
+  font-weight: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf1e-util-tree-leaf[draggable='true'] { cursor: grab; }
+.pf1e-util-tree-leaf[draggable='true']:hover { background: rgba(0,0,0,0.05); }
+.pf1e-util-tree-leaf[draggable='true']:active { cursor: grabbing; }
+
+.pf1e-util-changes-panel {
+  flex: 1;
+  overflow: hidden;
+  padding: 0.25rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.pf1e-util-changes-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Change rows */
+
+.pf1e-util-change {
+  display: flex;
+  flex-direction: column;
+  padding: 3px 0 4px;
+  font-size: 0.85em;
+}
+
+/* 2-tone groove divider between changes */
+.pf1e-util-change:not(:last-child) {
+  border-bottom: 1px solid #999;
+  box-shadow: 0 1px 0 0 #ddd;
+  margin-bottom: 3px;
+}
+
+.pf1e-util-change-row1 {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pf1e-util-change-row2 {
+  padding-left: 36px; /* indent past op icons */
+  margin-top: 2px;
+}
+
+.pf1e-util-op-btn {
+  cursor: pointer;
+  opacity: 0.25;
+  flex-shrink: 0;
+}
+
+.pf1e-util-op-btn.active { opacity: 1; }
+.pf1e-util-op-btn:hover { opacity: 0.6; }
+.pf1e-util-op-btn.active:hover { opacity: 0.8; }
+
+.pf1e-util-change-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf1e-util-editable-label {
+  cursor: pointer;
+  border-bottom: 1px dashed color-mix(in srgb, currentColor 40%, transparent);
+}
+
+.pf1e-util-editable-label:hover { border-bottom-style: solid; }
+
+/* Type label — fixed width so it doesn't push other items around */
+.pf1e-util-type-label {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.pf1e-util-type-select {
+  flex-shrink: 0;
+  font-size: 0.85em;
+}
+
+.pf1e-util-priority {
+  width: 26px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.pf1e-util-priority-input {
+  width: 36px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+/* Formula — full width on row 2 */
+.pf1e-util-formula-label {
+  display: block;
+  width: 100%;
+  font-family: monospace;
+  color: color-mix(in srgb, currentColor 70%, transparent);
+}
+
+.pf1e-util-formula-label:not([data-formula]),
+.pf1e-util-formula-label[data-formula=''] {
+  font-style: italic;
+  opacity: 0.5;
+}
+
+.pf1e-util-formula-input {
+  width: 100%;
+  font-family: monospace;
+}
+
+.pf1e-util-delete-btn {
+  cursor: pointer;
+  opacity: 0.35;
+  flex-shrink: 0;
+}
+
+.pf1e-util-delete-btn:hover { opacity: 1; color: var(--color-level-error, #c00); }
+
+/* Flag rows */
+
+.pf1e-util-flags-section {
+  margin-top: 4px;
+}
+
+
+.pf1e-util-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 2px 0;
+  font-size: 0.85em;
+}
+
+.pf1e-util-note-target {
+  flex-shrink: 0;
+  font-weight: bold;
+  min-width: 80px;
+  padding-top: 1px;
+}
+
+.pf1e-util-note-text {
+  flex: 1;
+  min-width: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  color: color-mix(in srgb, currentColor 80%, transparent);
+}
+
+.pf1e-util-note-textarea {
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+  font-size: inherit;
+  resize: vertical;
+  min-height: 48px;
+}
+
+.pf1e-util-notes-empty {
+  font-size: 0.8em;
+  font-style: italic;
+  opacity: 0.5;
+  text-align: center;
+  padding: 6px 0;
+}
+
+.pf1e-util-section-label {
+  font-size: 0.75em;
+  font-weight: bold;
+  opacity: 0.6;
+  text-transform: uppercase;
+  margin: 4px 0 2px;
+}
+
+.pf1e-util-flag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 22px;
+}
+
+.pf1e-util-flag-name {
+  flex: 1;
+  font-size: 0.85em;
+}
+
+/* ---- Features Tab ---- */
+
+.pf1e-util-features-tab {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  font-family: "Signika", sans-serif;
+  font-size: var(--font-size-12, 12px);
+}
+
+.pf1e-util-features-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding: 2px 0 2px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--pf1-scrollbar-handle, darkred) var(--pf1-scrollbar-background, transparent);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.pf1e-util-ft-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Unified header / sub-header row ─────────────────────────── */
+
+.pf1e-util-ft-header,
+.pf1e-util-ft-subheader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+  font-size: var(--font-size-12, 12px);
+  background: rgba(0,0,0,0.05);
+  border: var(--pf1-border-groove, 2px groove #eeede0);
+  margin-bottom: 2px;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pf1e-util-ft-header {
+  min-height: 24px;
+  line-height: 24px;
+  padding: 0 0 0 2px;
+}
+
+.pf1e-util-ft-subheader {
+  min-height: 16px;
+  line-height: 16px;
+  padding: 0 0 0 2px;
+}
+
+/* Title column — fills remaining space */
+.pf1e-util-ft-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Indentation spacer — sub-headers only */
+.pf1e-util-ft-title-spacer {
+  flex: 0 0 12px;
+}
+
+/* Arrow / caret */
+.pf1e-util-ft-arrow {
+  font-size: 0.8em;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+/* Label text */
+.pf1e-util-ft-text {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Count column */
+.pf1e-util-ft-count {
+  flex: 0 0 24px;
+  text-align: right;
+  font-size: var(--font-size-11, 11px);
+  opacity: 0.6;
+  font-weight: normal;
+}
+
+/* SVG icon mask helper */
+.pf1e-util-ft-col-icon {
+  display: inline-block;
+  background-color: rgb(75, 74, 68);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: cover;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* ── Fixed-width columns — shared by headers, sub-headers, and rows ── */
+
+.pf1e-util-ft-ability-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  font-size: var(--font-size-11, 11px);
+  color: #4b4a44;
+  opacity: 0.75;
+}
+
+.pf1e-util-ft-ability-charges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 56px;
+  font-size: var(--font-size-11, 11px);
+  color: #4b4a44;
+}
+
+.pf1e-util-ft-ability-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 44px;
+}
+
+.pf1e-util-ft-ability-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 24px;
+  font-size: var(--font-size-12, 12px);
+  color: #4b4a44;
+  margin-right: 3px;
+}
+
+/* ── Collapse / expand ── */
+
+.pf1e-util-ft-header.collapsed .pf1e-util-ft-arrow,
+.pf1e-util-ft-subheader.collapsed .pf1e-util-ft-arrow {
+  transform: rotate(-90deg);
+}
+
+/* ── Drop-class sub-headers ── */
+
+.pf1e-util-ft-subheader[data-drop-class] {
+  transition: background 0.1s;
+}
+
+.pf1e-util-ft-subheader[data-drop-class].drag-over {
+  background: rgba(0, 0, 0, 0.08);
+  outline: 1px dashed rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+}
+
+/* ── Group wrappers ── */
+
+.pf1e-util-ft-feat-group,
+.pf1e-util-ft-class-group {
+  margin-bottom: 2px;
+}
+
+/* ── Item rows ── */
+
+.pf1e-util-ft-row,
+.pf1e-util-ft-slot-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 0 0 2px;
+  font-size: var(--font-size-12, 12px);
+  min-height: 24px;
+  border-bottom: 1px solid #c9c7b8;
+  background-color: rgba(175,175,175,0.3);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.pf1e-util-ft-row:last-child,
+.pf1e-util-ft-slot-row:last-child {
+  border-bottom: none;
+}
+
+.pf1e-util-ft-row:nth-child(even),
+.pf1e-util-ft-slot-row:nth-child(even) {
+  background-color: rgba(210,210,210,0.3);
+}
+
+.pf1e-util-ft-row:hover,
+.pf1e-util-ft-slot-row:hover {
+  background-color: rgba(140,130,110,0.25);
+}
+
+.pf1e-util-ft-row.disabled {
+  opacity: 0.45;
+}
+
+.pf1e-util-ft-child-unparent {
+  flex: 0 0 14px;
+  position: relative;
+  cursor: pointer;
+  color: #4b4a44;
+  padding: 0;
+  align-self: stretch;
+}
+
+/* Vertical line — full height for middle children, top-to-mid for last */
+.pf1e-util-ft-child-unparent::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid rgba(0,0,0,0.22);
+  pointer-events: none;
+}
+
+.pf1e-util-ft-child-last .pf1e-util-ft-child-unparent::before {
+  bottom: 50%;
+}
+
+/* Horizontal connector */
+.pf1e-util-ft-child-unparent::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 8px;
+  border-top: 1px solid rgba(0,0,0,0.22);
+  pointer-events: none;
+}
+
+/* Icon centred in the span, hidden by default */
+.pf1e-util-ft-child-unparent i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.78em;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+/* Row hover: hide lines, reveal icon */
+.pf1e-util-ft-child-row:hover .pf1e-util-ft-child-unparent::before,
+.pf1e-util-ft-child-row:hover .pf1e-util-ft-child-unparent::after { opacity: 0; }
+
+.pf1e-util-ft-child-row:hover .pf1e-util-ft-child-unparent i { opacity: 0.4; }
+
+.pf1e-util-ft-child-row:hover .pf1e-util-ft-child-unparent:hover i {
+  opacity: 1;
+  color: var(--color-level-error, #c00);
+}
+
+.pf1e-util-ft-img {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  border: none;
+  border-radius: 2px;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.pf1e-util-ft-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf1e-util-ft-feature-level {
+  flex-shrink: 0;
+  width: 25px;
+  text-align: center;
+  font-size: 0.85em;
+  opacity: 0.6;
+  color: #4b4a44;
+}
+
+.pf1e-util-ft-feature-level-input {
+  flex-shrink: 0;
+  width: 25px;
+  text-align: center;
+  font-size: inherit;
+}
+
+.pf1e-util-ft-slot-level {
+  width: 20px;
+  text-align: center;
+  font-size: 0.75em;
+  font-weight: bold;
+  opacity: 0.45;
+  flex-shrink: 0;
+}
+
+.pf1e-util-ft-slot-empty {
+  flex: 1;
+  font-style: italic;
+  opacity: 0.35;
+}
+
+/* Row edit/delete controls — hidden until hover */
+.pf1e-util-ft-row .pf1e-util-ft-ability-edit,
+.pf1e-util-ft-slot-row .pf1e-util-ft-ability-edit {
+  opacity: 0;
+}
+
+.pf1e-util-ft-row:hover .pf1e-util-ft-ability-edit,
+.pf1e-util-ft-slot-row:hover .pf1e-util-ft-ability-edit {
+  opacity: 1;
+}
+
+.pf1e-util-ft-btn {
+  cursor: pointer;
+  opacity: 0.5;
+  font-size: var(--font-size-12, 12px);
+  color: #4b4a44;
+}
+
+.pf1e-util-ft-btn:hover {
+  opacity: 1;
+}
+
+.pf1e-util-ft-empty {
+  font-size: 0.8em;
+  font-style: italic;
+  opacity: 0.45;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.pf1e-util-ft-section-body {
+  overflow: hidden;
+}
+
+.pf1e-util-ft-section-body.collapsed {
+  display: none;
+}
+
+/* ---- Item Grid ---- */
+
+/* Features 2 pane must fill its container (flex:1 on .pf1e-util-ig only works
+   if the parent has a defined height — height:100% resolves against the pane). */
+.tab.pf1e-util-features2 {
+  height: 100%;
+  overflow: hidden;
+}
+
+.f2-hidden { display: none !important; }
+
+.pf1e-util-ig {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding: 2px 0;
+  gap: 2px;
+  box-sizing: border-box;
+  font-family: "Signika", sans-serif;
+  font-size: var(--font-size-12, 12px);
+  scrollbar-width: thin;
+  scrollbar-color: var(--pf1-scrollbar-handle, darkred) var(--pf1-scrollbar-background, transparent);
+}
+
+.pf1e-util-ig-section {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2px;
+}
+
+.pf1e-util-ig-header,
+.pf1e-util-ig-subheader {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-weight: bold;
+  background: rgba(0,0,0,0.05);
+  border: var(--pf1-border-groove, 2px groove #eeede0);
+  margin-bottom: 2px;
+  box-sizing: border-box;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+}
+
+.pf1e-util-ig-header    { min-height: 24px; line-height: 24px; padding: 0 0 0 2px; }
+.pf1e-util-ig-subheader { min-height: 16px; line-height: 16px; padding: 0 0 0 2px; }
+
+.pf1e-util-ig-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pf1e-util-ig-spacer { flex: 0 0 12px; }
+
+.pf1e-util-ig-arrow {
+  font-size: 0.8em;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.pf1e-util-ig-header.collapsed .pf1e-util-ig-arrow,
+.pf1e-util-ig-subheader.collapsed .pf1e-util-ig-arrow {
+  transform: rotate(-90deg);
+}
+
+.pf1e-util-ig-title-text {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf1e-util-ig-count {
+  flex: 0 0 24px;
+  text-align: right;
+  font-size: var(--font-size-11, 11px);
+  opacity: 0.6;
+  font-weight: normal;
+}
+
+.pf1e-util-ig-col-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-11, 11px);
+  font-weight: normal;
+  opacity: 0.6;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.pf1e-util-ig-action-btn {
+  flex-shrink: 0;
+  cursor: pointer;
+  opacity: 0.5;
+  font-size: var(--font-size-12, 12px);
+  padding: 0 3px;
+}
+
+.pf1e-util-ig-action-btn:hover { opacity: 1; }
+
+.pf1e-util-ig-body,
+.pf1e-util-ig-group-body {
+  overflow: hidden;
+}
+
+.pf1e-util-ig-body.collapsed,
+.pf1e-util-ig-group-body.collapsed {
+  display: none;
+}
+
+.pf1e-util-ig-group { margin-bottom: 2px; }
+
+.pf1e-util-ig-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  min-height: 24px;
+  border-bottom: 1px solid #c9c7b8;
+  background-color: rgba(175,175,175,0.3);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.pf1e-util-ig-row:last-child  { border-bottom: none; }
+.pf1e-util-ig-row:nth-child(even) { background-color: rgba(210,210,210,0.3); }
+.pf1e-util-ig-row:hover { background-color: rgba(140,130,110,0.25); }
+
+.pf1e-util-ig-cell {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--font-size-12, 12px);
+}
+
+/* ---- Item Grid structure ---- */
+
+.pf1e-util-ig-header-body,
+.pf1e-util-ig-subheader-body,
+.pf1e-util-ig-item-body {
+  overflow: hidden;
+}
+
+.pf1e-util-ig-collapsed {
+  display: none;
+}
+
+.pf1e-util-ig-item,
+.pf1e-util-ig-subitem {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 0 0 2px;
+  min-height: 24px;
+  border-bottom: 1px solid #c9c7b8;
+  background-color: rgba(175,175,175,0.3);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.pf1e-util-ig-cell img {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: none;
+  flex-shrink: 0;
+}
+
+.pf1e-util-ig-subitem { background-color: rgba(155,155,155,0.2); }
+
+.pf1e-util-ig-item:last-child,
+.pf1e-util-ig-subitem:last-child { border-bottom: none; }
+
+/* nth-child(even) is intentionally removed — item-body siblings break the count.
+   Alternating is applied via ItemDataGrid_StyleAlternating (.pf1e-util-ig-row-alt). */
+
+.pf1e-util-ig-item:hover,
+.pf1e-util-ig-subitem:hover { background-color: rgba(140,130,110,0.25); }
+
+/* ---- Tree lines ---- */
+
+.pf1e-util-ig-tree {
+  flex: 0 0 14px;
+  align-self: stretch;
+  position: relative;
+  background-image: linear-gradient(#888, #888);
+  background-size: 1px 100%;
+  background-position: 6px 0;
+  background-repeat: no-repeat;
+}
+
+.pf1e-util-ig-tree-last {
+  background-size: 1px 50%;
+}
+
+.pf1e-util-ig-tree::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  width: 7px;
+  height: 1px;
+  background: #888;
+}
+
+/* ---- Icon buttons inside rows ---- */
+
+.pf1e-util-ig-header .pf1e-util-ig-cell i,
+.pf1e-util-ig-subheader .pf1e-util-ig-cell i,
+.pf1e-util-ig-item .pf1e-util-ig-cell i,
+.pf1e-util-ig-subitem .pf1e-util-ig-cell i {
+  cursor: pointer;
+  opacity: 0.5;
+  color: #4b4a44;
+  font-size: var(--font-size-12, 12px);
+}
+
+.pf1e-util-ig-header .pf1e-util-ig-cell i:hover,
+.pf1e-util-ig-subheader .pf1e-util-ig-cell i:hover,
+.pf1e-util-ig-item .pf1e-util-ig-cell i:hover,
+.pf1e-util-ig-subitem .pf1e-util-ig-cell i:hover { opacity: 1; }
+
+/* Edit / delete icons hidden until row hover */
+.pf1e-util-ig-item .ig-row-btn,
+.pf1e-util-ig-subitem .ig-row-btn { opacity: 0 !important; }
+
+.pf1e-util-ig-item:hover .ig-row-btn,
+.pf1e-util-ig-subitem:hover .ig-row-btn { opacity: 0.5 !important; }
+
+.pf1e-util-ig-item:hover .ig-row-btn:hover,
+.pf1e-util-ig-subitem:hover .ig-row-btn:hover { opacity: 1 !important; }
+
+/* ---- Column header icons ---- */
+
+.pf1e-util-ig-col-icon {
+  display: inline-block;
+  background-color: rgb(75, 74, 68);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: cover;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+/* Centers the icon span inside its cell */
+.pf1e-util-ig-col-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Muted colour for AT / charges label columns */
+.pf1e-util-ig-col-muted {
+  color: #4b4a44;
+  opacity: 0.75;
+  display: flex;
+  align-items: center;
+}
+
+/* ---- Alternating rows (JS-applied, avoids :nth-child breaking on item-body siblings) ---- */
+
+.pf1e-util-ig-row-alt {
+  background-color: rgba(210,210,210,0.3) !important;
+}
+
+/* ---- Tree-line action icon (unparent on subitem hover) ---- */
+
+/* Icon sits centred inside the 14px tree span */
+.pf1e-util-ig-tree-action {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  font-size: 0.78em;
+  transition: opacity 0.1s;
+  color: #4b4a44;
+}
+
+/* On subitem hover: fade tree lines, reveal icon */
+.pf1e-util-ig-subitem:hover .pf1e-util-ig-tree {
+  background-image: none;
+}
+
+.pf1e-util-ig-subitem:hover .pf1e-util-ig-tree::after {
+  display: none;
+}
+
+.pf1e-util-ig-subitem:hover .pf1e-util-ig-tree-action {
+  opacity: 0.4;
+}
+
+.pf1e-util-ig-subitem:hover .pf1e-util-ig-tree:hover .pf1e-util-ig-tree-action {
+  opacity: 1;
+  color: var(--color-level-error, #c00);
+}
+
+/* ---- Collapse control ---- */
+
+.pf1e-util-ig-collapse {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.pf1e-util-ig-collapse:hover { opacity: 1; }
+
+/* Slot drop popup */
+
+.pf1e-util-slot-popup {
+  position: fixed;
+}
+
+.pf1e-util-slot-popup-zone {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(4px);
+  border: 3px dashed rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  font-size: 1.1em;
+  font-weight: bold;
+  opacity: 0.8;
+  cursor: default;
+  user-select: none;
+}
+
+.pf1e-util-slot-popup-zone.dragover {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+}
+
+.pf1e-util-slot-popup-label {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.pf1e-util-slot-popup-hint {
+  font-size: 0.85em;
+  opacity: 0.6;
+  text-align: center;
+}
+
+/* Slot rows as drop targets */
+
+.pf1e-util-ft-slot-row[data-slot-target] {
+  transition: background 0.1s;
+}
+
+.pf1e-util-ft-slot-row[data-slot-target].drag-over {
+  background: rgba(0, 0, 0, 0.08);
+  outline: 1px dashed rgba(0, 0, 0, 0.3);
+}
+
+
