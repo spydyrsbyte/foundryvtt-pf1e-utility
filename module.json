@@ -20,6 +20,8 @@
   "esmodules": [
     "modules/pf1e-util.mjs"
   ],
+  "manifest": "https://raw.githubusercontent.com/spydyrsbyte/foundryvtt-pf1e-utility/refs/heads/main/module.json",
+  "download": "https://github.com/spydyrsbyte/foundryvtt-pf1e-utility/archive/refs/heads/main.zip",
   "languages": [
     {
       "lang": "en",
