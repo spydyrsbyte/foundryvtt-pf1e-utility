@@ -892,11 +892,11 @@ export function initializeFeatures2Tab(ActorSheet) {
   grid.data = buildGridData;
 
   ActorSheet.tabs.new({
-    id: 'pf1e-util-features2',
-    label: 'Features 2',
+    id: 'pf1e-util-features',
+    label: 'Features',
     template: 'modules/pf1e-utility/templates/actor-features2-tab.hbs',
     data: (actor) => ({ actor }),
-    order: { after: 'pf1e-util-features' },
+    order: { before: 'spellbook' },
     render: (actor, pane) => grid.render(actor, pane),
   });
 }

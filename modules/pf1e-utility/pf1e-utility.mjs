@@ -9,7 +9,6 @@ import { registerDebugTab } from "../actor/debug-tab.mjs";
 import { measureDistance, targetsWithin } from "../utils/distance.mjs";
 import { ChangeRegistry } from "../changes/change-registry.mjs";
 import { initializeBuffChangesTab } from "../changes/buff-changes-tab.mjs";
-import { initializeFeaturesTab } from "../actor/features-tab.mjs";
 import { initializeFeatures2Tab } from "../actor/features2-tab.mjs";
 
 export const ActorSheet = new ActorSheetRegistry();
@@ -29,7 +28,7 @@ export function initialize() {
   registerScriptCallTab(ActorSheet);
   registerDebugTab(ActorSheet);
   initializeBuffChangesTab(ItemSheet, Changes);
-  initializeFeaturesTab(ActorSheet);
+  ActorSheet.tabs.new({ id: 'features', label: 'Features', hidden: true });
   initializeFeatures2Tab(ActorSheet);
 
   game.settings.registerMenu("pf1e-utility", "actorSheetTabOrder", {
