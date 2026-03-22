@@ -64,11 +64,14 @@ function buildAlternateGroups(allTabs) {
 
   for (const [key, group] of byLabel) {
     if (group.length < 2) continue;
-    // registered overrides first (index 0 by default), native tabs last
-    const ordered = [...group].sort((a, b) =>
-      a.native === b.native ? 0 : a.native ? 1 : -1
-    );
-    const currentIndex = Math.min(saved[key] ?? 0, ordered.length - 1);
+    // native tab at index 0, then registered tabs sorted by id
+    const ordered = [...group].sort((a, b) => {
+      if (a.native !== b.native) return a.native ? -1 : 1;
+      return a.id.localeCompare(b.id);
+    });
+    const hasNative    = ordered[0]?.native ?? false;
+    const defaultIndex = hasNative && ordered.length > 1 ? 1 : 0;
+    const currentIndex = Math.min(saved[key] ?? defaultIndex, ordered.length - 1);
     groups[key] = {
       currentIndex,
       tabs: ordered.map((t) => ({ id: t.id, label: t.label, native: t.native ?? false })),
