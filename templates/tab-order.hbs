@@ -10,6 +10,7 @@
 
   {{#each tabs}}
   <div class="tab-settings-panel{{#if @first}} active{{/if}}" data-label-key="{{labelKey}}">
+    <h2 class="tab-settings-title">{{label}}</h2>
     <label class="tab-settings-hidden-label">
       <input class="tab-hidden-check" type="checkbox" {{#if hidden}}checked{{/if}}> Hidden
     </label>
