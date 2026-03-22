@@ -28,7 +28,6 @@ export function initialize() {
   registerScriptCallTab(ActorSheet);
   registerDebugTab(ActorSheet);
   initializeBuffChangesTab(ItemSheet, Changes);
-  ActorSheet.tabs.new({ id: 'features', label: 'Features', hidden: true });
   initializeFeatures2Tab(ActorSheet);
 
   game.settings.registerMenu("pf1e-utility", "actorSheetTabOrder", {
