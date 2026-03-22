@@ -143,6 +143,7 @@ export function registerScriptCallTab(ActorSheet) {
     id: "pf1e-util-advanced",
     label: "Advanced",
     template: "modules/pf1e-utility/templates/actor-script-calls.hbs",
+    order: { before: "settings" },
     data: (actor) => {
       const all = getAll(actor);
       return {
