@@ -891,7 +891,7 @@ export function initializeFeatures2Tab(ActorSheet) {
   game.settings.register(MODULE, LEVEL_FORMULA_KEY, {
     name: "Level Feat Formula",
     hint: "Formula for feats gained by character level. Use @details.level.value for character level.",
-    scope: "client",
+    scope: "world",
     config: true,
     type: String,
     default: "ceil(@details.level.value / 2)",
@@ -900,7 +900,7 @@ export function initializeFeatures2Tab(ActorSheet) {
   game.settings.register(MODULE, TRAIT_COUNT_KEY, {
     name: "Trait Count",
     hint: "Number of trait slots available to characters.",
-    scope: "client",
+    scope: "world",
     config: true,
     type: Number,
     default: 2,
