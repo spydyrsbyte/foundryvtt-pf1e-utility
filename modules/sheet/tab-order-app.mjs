@@ -4,7 +4,7 @@ export class TabOrderApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "pf1e-util-tab-order",
     window: { title: "Actor Sheet Tab Settings" },
-    position: { width: 420, height: "auto" },
+    position: { width: 600, height: "auto" },
     actions: {
       save:  TabOrderApp.#onSave,
       reset: TabOrderApp.#onReset,
@@ -21,7 +21,7 @@ export class TabOrderApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
     if (!Object.keys(tabs).length) return { hasTabs: false };
 
-    const nativeIds = new Set(nativeOrder);
+    const nativeIds   = new Set(nativeOrder);
     const systemLabel = game.system.id.toUpperCase();
 
     const tabList = Object.entries(tabs)
@@ -44,32 +44,50 @@ export class TabOrderApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
+    this.#activateTabs();
     this.#activateDragSort();
   }
 
+  #activateTabs() {
+    const nav = this.element.querySelector(".tab-settings-nav");
+    if (!nav) return;
+    nav.addEventListener("click", (e) => {
+      const tab = e.target.closest(".tab-settings-tab");
+      if (!tab) return;
+      const key = tab.dataset.labelKey;
+
+      nav.querySelectorAll(".tab-settings-tab").forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      this.element.querySelectorAll(".tab-settings-panel").forEach((p) => {
+        p.classList.toggle("active", p.dataset.labelKey === key);
+      });
+    });
+  }
+
   #activateDragSort() {
-    const list = this.element.querySelector(".tab-settings-list");
-    if (!list) return;
+    const nav = this.element.querySelector(".tab-settings-nav");
+    if (!nav) return;
     let dragged = null;
 
-    list.addEventListener("dragstart", (e) => {
-      dragged = e.target.closest(".tab-settings-row");
+    nav.addEventListener("dragstart", (e) => {
+      dragged = e.target.closest(".tab-settings-tab");
       dragged?.classList.add("dragging");
       e.dataTransfer.effectAllowed = "move";
     });
 
-    list.addEventListener("dragend", () => {
+    nav.addEventListener("dragend", () => {
       dragged?.classList.remove("dragging");
       dragged = null;
     });
 
-    list.addEventListener("dragover", (e) => {
+    nav.addEventListener("dragover", (e) => {
       e.preventDefault();
       if (!dragged) return;
-      const target = e.target.closest(".tab-settings-row");
+      const target = e.target.closest(".tab-settings-tab");
       if (target && target !== dragged) {
         const rect  = target.getBoundingClientRect();
-        const after = e.clientY > rect.top + rect.height / 2;
+        const after = e.clientX > rect.left + rect.width / 2;
         after ? target.after(dragged) : target.before(dragged);
       }
     });
@@ -81,13 +99,14 @@ export class TabOrderApp extends HandlebarsApplicationMixin(ApplicationV2) {
       Object.entries(settings.tabs).map(([k, v]) => [k, { ...v }])
     );
 
-    this.element.querySelectorAll(".tab-settings-row").forEach((row, i) => {
-      const labelKey = row.dataset.labelKey;
+    this.element.querySelectorAll(".tab-settings-tab").forEach((tab, i) => {
+      const labelKey = tab.dataset.labelKey;
       if (!newTabs[labelKey]) return;
 
-      const hidden  = row.querySelector(".tab-hidden-check").checked;
-      const checked = row.querySelector("input[type='radio']:checked");
-      const currentIndex = checked ? parseInt(checked.value) : newTabs[labelKey].currentIndex;
+      const panel        = this.element.querySelector(`.tab-settings-panel[data-label-key="${labelKey}"]`);
+      const hidden       = panel?.querySelector(".tab-hidden-check")?.checked ?? newTabs[labelKey].hidden;
+      const checkedRadio = panel?.querySelector("input[type='radio']:checked");
+      const currentIndex = checkedRadio ? parseInt(checkedRadio.value) : newTabs[labelKey].currentIndex;
 
       newTabs[labelKey] = { ...newTabs[labelKey], hidden, order: i, currentIndex };
     });

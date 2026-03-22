@@ -1,28 +1,32 @@
 <form>
-  <p class="notes">Drag rows to reorder. Check <strong>Hidden</strong> to remove from sheet.</p>
-
   {{#if hasTabs}}
-  <div class="tab-settings-list">
+  <nav class="sheet-navigation tabs tab-settings-nav" data-group="tab-settings">
     {{#each tabs}}
-    <div class="tab-settings-row" data-label-key="{{labelKey}}" draggable="true">
-      <i class="fa-solid fa-grip-vertical tab-drag-handle"></i>
-      <span class="tab-settings-label">{{label}}</span>
-      <label class="tab-settings-hidden-label">
-        <input class="tab-hidden-check" type="checkbox" {{#if hidden}}checked{{/if}}> Hidden
-      </label>
-      {{#if showRadio}}
-      <div class="tab-settings-overrides">
-        {{#each overrides}}
-        <label class="tab-override-option">
-          <input type="radio" name="override-{{../labelKey}}" value="{{index}}" {{#if checked}}checked{{/if}}>
-          {{displayLabel}}
-        </label>
-        {{/each}}
-      </div>
-      {{/if}}
-    </div>
+    <a class="item tab-settings-tab{{#if @first}} active{{/if}}" data-label-key="{{labelKey}}" draggable="true">
+      {{label}}
+    </a>
     {{/each}}
+  </nav>
+
+  {{#each tabs}}
+  <div class="tab-settings-panel{{#if @first}} active{{/if}}" data-label-key="{{labelKey}}">
+    <label class="tab-settings-hidden-label">
+      <input class="tab-hidden-check" type="checkbox" {{#if hidden}}checked{{/if}}> Hidden
+    </label>
+    {{#if showRadio}}
+    <div class="tab-settings-overrides">
+      <p class="tab-settings-overrides-label">Override</p>
+      {{#each overrides}}
+      <label class="tab-override-option">
+        <input type="radio" name="override-{{../labelKey}}" value="{{index}}" {{#if checked}}checked{{/if}}>
+        {{displayLabel}}
+      </label>
+      {{/each}}
+    </div>
+    {{/if}}
   </div>
+  {{/each}}
+
   {{else}}
   <p class="notification warning">Open a character sheet first so the full tab list can be detected.</p>
   {{/if}}
