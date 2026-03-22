@@ -273,8 +273,7 @@ async function applyOrder(app, html, registrations) {
 
 export class ActorSheetRegistry {
   #registrations     = new Map();
-  #lastKnownSettings = { nativeOrder: [], tabs: {} };
-  #onNextUpdate      = null;
+  #onNextUpdate = null;
 
   tabs = {
     /**
@@ -310,7 +309,6 @@ export class ActorSheetRegistry {
     Hooks.on("renderActorSheet", (app, html) => {
       void applyOrder(app, html, this.#registrations).then((result) => {
         if (result) {
-          this.#lastKnownSettings = result.settings;
           this.#onNextUpdate?.();
           this.#onNextUpdate = null;
         }
@@ -322,9 +320,9 @@ export class ActorSheetRegistry {
     });
   }
 
-  /** Returns the last known full settings object. */
+  /** Returns the current full settings object. */
   getSettings() {
-    return { ...this.#lastKnownSettings };
+    return getTabSettings();
   }
 
   /** Saves a full settings object and re-renders open sheets. */
