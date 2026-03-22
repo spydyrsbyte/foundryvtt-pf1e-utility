@@ -87,12 +87,13 @@ function ensureTabSettings(settings, nativeTabs, allTabs) {
     ];
 
     if (!result.tabs[key]) {
-      const rawOrder     = native ? result.nativeOrder.indexOf(native.id) : -1;
-      const defaultOrder = rawOrder >= 0 ? rawOrder : nextOrder++;
-      const defaultIndex = native && registered.length > 0 ? 1 : 0;
+      const rawOrder      = native ? result.nativeOrder.indexOf(native.id) : -1;
+      const defaultOrder  = rawOrder >= 0 ? rawOrder : nextOrder++;
+      const defaultIndex  = native && registered.length > 0 ? 1 : 0;
+      const defaultHidden = registered.some((t) => allTabs.get(t.id)?.hidden === true);
       result.tabs[key] = {
         label:        group[0].label,
-        hidden:       false,
+        hidden:       defaultHidden,
         order:        defaultOrder,
         currentIndex: defaultIndex,
         overrides:    expectedOverrides,
@@ -288,9 +289,9 @@ export class ActorSheetRegistry {
      * If a native tab shares the same label, the registered tab shows by default
      * (currentIndex = 1). The user can switch via the tab settings UI.
      */
-    new: ({ id, label, template, data, render } = {}) => {
+    new: ({ id, label, template, data, render, hidden = false } = {}) => {
       const bindings = [];
-      const reg = { label, template, data, bindings, render };
+      const reg = { label, template, data, bindings, render, hidden };
       Object.defineProperty(reg, "id", { value: id ?? slugify(label), writable: false, enumerable: true });
       this.#registrations.set(reg.id, reg);
       reg.on = makeOn(bindings);

@@ -28,6 +28,7 @@ export function registerDebugTab(ActorSheet) {
     label: "Debug",
     template: "modules/pf1e-utility/templates/actor-debug.hbs",
     data: (actor) => ({ tree: buildTree(actor.toObject()) }),
+    hidden: true,
   });
 
   tab.on.data("action", "obj-toggle").click((e) => {
