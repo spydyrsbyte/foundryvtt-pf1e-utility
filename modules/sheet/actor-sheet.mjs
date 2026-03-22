@@ -139,9 +139,12 @@ function compileOrder(root, registrations) {
     for (const tab of rest) order.push(tab);
   }
 
-  const hidden = Array.from(allTabs.values()).filter((tab) =>
-    hiddenSet.has(tab.id) || (!hasSavedOrder && registrations.get(tab.id)?.hidden)
-  );
+  const savedOrderSet = new Set(savedOrder);
+  const hidden = Array.from(allTabs.values()).filter((tab) => {
+    if (hiddenSet.has(tab.id)) return true;
+    if (savedOrderSet.has(tab.id)) return false; // user explicitly placed it
+    return registrations.get(tab.id)?.hidden ?? false;
+  });
 
   return { order, hidden };
 }
