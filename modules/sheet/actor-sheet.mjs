@@ -1,7 +1,6 @@
-const SETTING_KEY    = "actorSheetTabOrder";
-const ALTERNATES_KEY = "actorSheetTabAlternates";
-const NAV_SELECTOR   = 'nav.sheet-navigation.tabs[data-group="primary"]';
-const BODY_SELECTOR  = "section.primary-body";
+const SETTINGS_KEY = "actorSheetTabSettings";
+const NAV_SELECTOR  = 'nav.sheet-navigation.tabs[data-group="primary"]';
+const BODY_SELECTOR = "section.primary-body";
 
 function resolveElement(html) {
   if (html instanceof HTMLElement) return html;
@@ -27,69 +26,116 @@ function getNativeTabs(el) {
   }));
 }
 
-function getSetting() {
-  const raw = game.settings.get("pf1e-util", SETTING_KEY);
-  if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw;
-  return { order: [], hidden: [] };
-}
-
-function getAlternatesSetting() {
+function getTabSettings() {
   try {
-    const raw = game.settings.get("pf1e-util", ALTERNATES_KEY);
+    const raw = game.settings.get("pf1e-util", SETTINGS_KEY);
     if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw;
   } catch { /* not yet registered */ }
-  return {};
+  return { nativeOrder: [], tabs: {} };
 }
 
 /**
- * Groups allTabs by label. For any label with 2+ tabs, picks one to show
- * (registered overrides first, then native) based on the saved currentIndex.
+ * Ensures the settings object is fully populated for all known tabs.
+ * Called on every render; only writes back if something changed.
  *
- * Returns:
- *   forceHidden — Set of tab ids that must be hidden (inactive alternates)
- *   groups      — { [labelKey]: { currentIndex, tabs: [{id, label, native}] } }
+ * Settings shape:
+ * {
+ *   nativeOrder: [id, ...],          // native tab ids in their original order
+ *   tabs: {
+ *     [labelKey]: {
+ *       label:        string,         // display label
+ *       hidden:       boolean,
+ *       order:        number,         // sort position
+ *       currentIndex: number,         // which override is active
+ *       overrides:    [id, ...]       // native id at [0], then registered sorted by id
+ *     }
+ *   }
+ * }
  */
-function buildAlternateGroups(allTabs) {
-  const saved = getAlternatesSetting();
-  const byLabel = new Map();
+function ensureTabSettings(settings, nativeTabs, allTabs) {
+  let changed = false;
+  const result = {
+    nativeOrder: [...(settings.nativeOrder ?? [])],
+    tabs: Object.fromEntries(
+      Object.entries(settings.tabs ?? {}).map(([k, v]) => [k, { ...v }])
+    ),
+  };
 
-  for (const tab of allTabs.values()) {
-    const key = slugify(tab.label);
-    if (!byLabel.has(key)) byLabel.set(key, []);
-    byLabel.get(key).push(tab);
+  // Capture nativeOrder once on first render
+  if (!result.nativeOrder.length && nativeTabs.length) {
+    result.nativeOrder = nativeTabs.map((t) => t.id);
+    changed = true;
   }
 
-  const forceHidden = new Set();
-  const groups = {};
+  // Group allTabs by slugified label
+  const groupsByLabel = new Map();
+  for (const tab of allTabs.values()) {
+    const key = slugify(tab.label);
+    if (!groupsByLabel.has(key)) groupsByLabel.set(key, []);
+    groupsByLabel.get(key).push(tab);
+  }
 
-  for (const [key, group] of byLabel) {
-    if (group.length < 2) continue;
-    // native tab at index 0, then registered tabs sorted by id
-    const ordered = [...group].sort((a, b) => {
-      if (a.native !== b.native) return a.native ? -1 : 1;
-      return a.id.localeCompare(b.id);
-    });
-    const hasNative    = ordered[0]?.native ?? false;
-    const defaultIndex = hasNative && ordered.length > 1 ? 1 : 0;
-    const currentIndex = Math.min(saved[key] ?? defaultIndex, ordered.length - 1);
-    groups[key] = {
-      currentIndex,
-      tabs: ordered.map((t) => ({ id: t.id, label: t.label, native: t.native ?? false })),
-    };
-    for (let i = 0; i < ordered.length; i++) {
-      if (i !== currentIndex) forceHidden.add(ordered[i].id);
+  const existingOrders = Object.values(result.tabs).map((t) => t.order);
+  let nextOrder = existingOrders.length ? Math.max(...existingOrders) + 1 : 0;
+
+  for (const [key, group] of groupsByLabel) {
+    const native     = group.find((t) => t.native);
+    const registered = group.filter((t) => !t.native).sort((a, b) => a.id.localeCompare(b.id));
+    const expectedOverrides = [
+      ...(native     ? [native.id]           : []),
+      ...registered.map((t) => t.id),
+    ];
+
+    if (!result.tabs[key]) {
+      const rawOrder     = native ? result.nativeOrder.indexOf(native.id) : -1;
+      const defaultOrder = rawOrder >= 0 ? rawOrder : nextOrder++;
+      const defaultIndex = native && registered.length > 0 ? 1 : 0;
+      result.tabs[key] = {
+        label:        group[0].label,
+        hidden:       false,
+        order:        defaultOrder,
+        currentIndex: defaultIndex,
+        overrides:    expectedOverrides,
+      };
+      changed = true;
+    } else {
+      const existing = result.tabs[key];
+      const current  = [...existing.overrides];
+      let dirty = false;
+
+      for (const id of expectedOverrides) {
+        if (!current.includes(id)) { current.push(id); dirty = true; }
+      }
+      const filtered = current.filter((id) => allTabs.has(id));
+      if (filtered.length !== current.length) dirty = true;
+
+      if (dirty) {
+        const n = filtered.filter((id) => allTabs.get(id)?.native);
+        const r = filtered.filter((id) => !allTabs.get(id)?.native).sort();
+        result.tabs[key] = {
+          ...existing,
+          label:        group[0].label,
+          overrides:    [...n, ...r],
+          currentIndex: Math.min(existing.currentIndex, filtered.length - 1),
+        };
+        changed = true;
+      }
     }
   }
 
-  return { forceHidden, groups };
+  // Remove groups whose tabs no longer exist
+  for (const key of Object.keys(result.tabs)) {
+    if (!groupsByLabel.has(key)) {
+      delete result.tabs[key];
+      changed = true;
+    }
+  }
+
+  return { settings: result, changed };
 }
 
 /**
  * Returns a chainable binding object via Proxy.
- * Any property access returns a function that stores the binding and returns
- * the same binding object so multiple events can be chained on one selector.
- *
- * tab.on("[data-action='foo']").click(fn).change(fn)
  */
 function makeBinding(selector, store) {
   const binding = new Proxy(
@@ -106,18 +152,10 @@ function makeBinding(selector, store) {
   return binding;
 }
 
-/**
- * Builds the `on` function attached to a tab instance.
- *
- * tab.on(selector)          — arbitrary CSS selector
- * tab.on.id("foo")          — #foo
- * tab.on.data("key")        — [data-key]
- * tab.on.data("key","val")  — [data-key="val"]
- */
 function makeOn(store) {
   const on = (selector) => makeBinding(selector, store);
-  on.id = (id) => makeBinding(`#${id}`, store);
-  on.data = (attr, value) =>
+  on.id    = (id)           => makeBinding(`#${id}`, store);
+  on.data  = (attr, value)  =>
     makeBinding(
       value !== undefined ? `[data-${attr}="${value}"]` : `[data-${attr}]`,
       store
@@ -126,11 +164,6 @@ function makeOn(store) {
 }
 
 function compileOrder(root, registrations) {
-  const { order: savedOrder, hidden: savedHidden } = getSetting();
-  const hiddenSet     = new Set(savedHidden);
-  const savedOrderSet = new Set(savedOrder);
-  const hasSavedOrder = savedOrder.length > 0;
-
   const nativeTabs = getNativeTabs(root);
   const allTabs = new Map();
   for (const tab of nativeTabs) allTabs.set(tab.id, tab);
@@ -138,67 +171,36 @@ function compileOrder(root, registrations) {
     if (!allTabs.has(id)) allTabs.set(id, { ...reg, native: false });
   }
 
-  const { forceHidden, groups } = buildAlternateGroups(allTabs);
+  const { settings, changed } = ensureTabSettings(getTabSettings(), nativeTabs, allTabs);
+  if (changed) game.settings.set("pf1e-util", SETTINGS_KEY, settings);
 
-  const order = [];
+  const { tabs } = settings;
+  const order      = [];
+  const forceHidden = new Set();
 
-  if (hasSavedOrder) {
-    const remaining = new Map(allTabs);
-    for (const id of savedOrder) {
-      if (remaining.has(id) && !hiddenSet.has(id) && !forceHidden.has(id)) {
-        order.push(remaining.get(id));
-        remaining.delete(id);
-      }
-    }
-    for (const [, tab] of remaining) {
-      if (!hiddenSet.has(tab.id) && !forceHidden.has(tab.id)) order.push(tab);
-    }
-  } else {
-    const usedIds = new Set();
-    for (const tab of nativeTabs) {
-      if (!hiddenSet.has(tab.id) && !forceHidden.has(tab.id)) {
-        order.push(tab);
-        usedIds.add(tab.id);
-      }
+  const sortedGroups = Object.entries(tabs).sort(([, a], [, b]) => a.order - b.order);
+
+  for (const [, cfg] of sortedGroups) {
+    const activeId = cfg.overrides[cfg.currentIndex] ?? cfg.overrides[0];
+    if (!activeId) continue;
+
+    // All inactive overrides in this group are hidden regardless
+    for (const id of cfg.overrides) {
+      if (id !== activeId) forceHidden.add(id);
     }
 
-    const injected = Array.from(registrations.values()).filter(
-      (reg) => !hiddenSet.has(reg.id) && !forceHidden.has(reg.id) && !usedIds.has(reg.id) && !reg.hidden
-    );
+    if (cfg.hidden) {
+      forceHidden.add(activeId);
+      continue;
+    }
 
-    const byLabel = (a, b) => a.label.localeCompare(b.label);
-    const withBefore = injected.filter((t) => t.order?.before).sort(byLabel);
-    const withAfter  = injected.filter((t) => t.order?.after).sort(byLabel);
-    const withNumber = injected
-      .filter((t) => typeof t.order === "number")
-      .sort((a, b) => a.order - b.order || byLabel(a, b));
-    const rest = injected
-      .filter((t) => !t.order?.before && !t.order?.after && typeof t.order !== "number")
-      .sort(byLabel);
-
-    for (const tab of withBefore) {
-      const idx = order.findIndex((t) => t.id === tab.order.before);
-      idx !== -1 ? order.splice(idx, 0, tab) : order.push(tab);
-    }
-    for (const tab of withAfter) {
-      const idx = order.findIndex((t) => t.id === tab.order.after);
-      idx !== -1 ? order.splice(idx + 1, 0, tab) : order.push(tab);
-    }
-    for (const tab of withNumber) {
-      const idx = Math.min(tab.order, order.length);
-      order.splice(idx, 0, tab);
-    }
-    for (const tab of rest) order.push(tab);
+    const tab = allTabs.get(activeId);
+    if (tab) order.push(tab);
   }
 
-  const hidden = Array.from(allTabs.values()).filter((tab) => {
-    if (forceHidden.has(tab.id)) return true;       // inactive alternate — always hide
-    if (hiddenSet.has(tab.id)) return true;
-    if (savedOrderSet.has(tab.id)) return false;    // user explicitly placed it
-    return registrations.get(tab.id)?.hidden ?? false;
-  });
+  const hidden = Array.from(allTabs.values()).filter((tab) => forceHidden.has(tab.id));
 
-  return { order, hidden, alternates: groups };
+  return { order, hidden, settings };
 }
 
 // Track last active tab per app instance so re-renders restore it
@@ -211,7 +213,7 @@ async function applyOrder(app, html, registrations) {
   const body = root.querySelector(BODY_SELECTOR);
   if (!nav || !body) return;
 
-  const { order, hidden, alternates } = compileOrder(root, registrations);
+  const { order, hidden, settings } = compileOrder(root, registrations);
 
   for (const tab of order) {
     if (tab.native) continue;
@@ -223,17 +225,17 @@ async function applyOrder(app, html, registrations) {
     if (!htmlString) continue;
 
     const navItem = document.createElement("a");
-    navItem.className    = "item";
+    navItem.className     = "item";
     navItem.dataset.tab   = tab.id;
     navItem.dataset.group = "primary";
     navItem.textContent   = tab.label;
     nav.append(navItem);
 
     const pane = document.createElement("div");
-    pane.className        = `tab ${tab.id} flexcol`;
-    pane.dataset.group    = "primary";
-    pane.dataset.tab      = tab.id;
-    pane.innerHTML        = htmlString;
+    pane.className     = `tab ${tab.id} flexcol`;
+    pane.dataset.group = "primary";
+    pane.dataset.tab   = tab.id;
+    pane.innerHTML     = htmlString;
     body.append(pane);
 
     for (const { selector, event, fn } of reg.bindings) {
@@ -257,41 +259,39 @@ async function applyOrder(app, html, registrations) {
     if (pane) body.append(pane);
   }
 
-  // Restore previously active tab if the sheet re-rendered while it was open
   const lastTab = activeTabByApp.get(app.appId);
   if (lastTab && nav.querySelector(`a[data-tab="${lastTab}"]`)) {
     app._tabs?.[0]?.activate(lastTab);
   }
 
-  // Track tab changes for future re-renders
   nav.querySelectorAll("a.item[data-tab]").forEach((item) => {
     item.addEventListener("click", () => activeTabByApp.set(app.appId, item.dataset.tab), { once: false });
   });
 
-  return { order, hidden, alternates };
+  return { order, hidden, settings };
 }
 
 export class ActorSheetRegistry {
-  #registrations  = new Map();
-  #lastKnownOrder = { order: [], hidden: [], alternates: {} };
-  #onNextOrderUpdate = null;
+  #registrations     = new Map();
+  #lastKnownSettings = { nativeOrder: [], tabs: {} };
+  #onNextUpdate      = null;
 
   tabs = {
     /**
      * Register a new tab for injection into actor sheets.
      * @param {object} config
-     * @param {string} [config.id]        - Tab id. Auto-derived from label slug if omitted.
-     * @param {string} config.label       - Display label shown in the tab nav.
-     * @param {string} config.template    - Path to the Handlebars template.
-     * @param {Function} [config.data]    - Optional async fn(actor) returning template context.
-     * @param {number|{before:string}|{after:string}} [config.order] - Default position.
-     * @param {boolean} [config.hidden=false] - If true, hidden by default until user enables it.
-     *   If a tab with the same label exists (native or registered), the registered one wins
-     *   at index 0 automatically — no need to set hidden on the other.
+     * @param {string} [config.id]       - Tab id. Auto-derived from label slug if omitted.
+     * @param {string} config.label      - Display label.
+     * @param {string} config.template   - Handlebars template path.
+     * @param {Function} [config.data]   - async fn(actor) → template context.
+     * @param {Function} [config.render] - fn(actor, pane) called after injection.
+     *
+     * If a native tab shares the same label, the registered tab shows by default
+     * (currentIndex = 1). The user can switch via the tab settings UI.
      */
-    new: ({ id, label, template, data, order, hidden = false, render } = {}) => {
+    new: ({ id, label, template, data, render } = {}) => {
       const bindings = [];
-      const reg = { label, template, data, order, hidden, bindings, render };
+      const reg = { label, template, data, bindings, render };
       Object.defineProperty(reg, "id", { value: id ?? slugify(label), writable: false, enumerable: true });
       this.#registrations.set(reg.id, reg);
       reg.on = makeOn(bindings);
@@ -300,26 +300,19 @@ export class ActorSheetRegistry {
   };
 
   initialize() {
-    game.settings.register("pf1e-util", SETTING_KEY, {
-      scope: "client",
-      config: false,
-      type: Object,
-      default: { order: [], hidden: [] },
-    });
-
-    game.settings.register("pf1e-util", ALTERNATES_KEY, {
-      scope: "client",
-      config: false,
-      type: Object,
-      default: {},
+    game.settings.register("pf1e-util", SETTINGS_KEY, {
+      scope:   "client",
+      config:  false,
+      type:    Object,
+      default: { nativeOrder: [], tabs: {} },
     });
 
     Hooks.on("renderActorSheet", (app, html) => {
       void applyOrder(app, html, this.#registrations).then((result) => {
         if (result) {
-          this.#lastKnownOrder = result;
-          this.#onNextOrderUpdate?.();
-          this.#onNextOrderUpdate = null;
+          this.#lastKnownSettings = result.settings;
+          this.#onNextUpdate?.();
+          this.#onNextUpdate = null;
         }
       });
     });
@@ -329,32 +322,19 @@ export class ActorSheetRegistry {
     });
   }
 
-  getOrder() {
-    return { ...this.#lastKnownOrder };
+  /** Returns the last known full settings object. */
+  getSettings() {
+    return { ...this.#lastKnownSettings };
   }
 
-  /** Returns the current alternate groups: { [labelKey]: { currentIndex, tabs } } */
-  getAlternates() {
-    return { ...this.#lastKnownOrder.alternates };
+  /** Saves a full settings object and re-renders open sheets. */
+  saveSettings(settings) {
+    game.settings.set("pf1e-util", SETTINGS_KEY, settings);
   }
 
-  /**
-   * Switch which tab is active for a duplicate-label group.
-   * @param {string} labelKey  - Slugified label (e.g. "features")
-   * @param {number} index     - Index into the group's tabs array
-   */
-  setAlternate(labelKey, index) {
-    const saved = getAlternatesSetting();
-    saved[labelKey] = index;
-    game.settings.set("pf1e-util", ALTERNATES_KEY, saved);
-  }
-
-  saveOrder(order, hidden) {
-    game.settings.set("pf1e-util", SETTING_KEY, { order, hidden });
-  }
-
-  clearOrder(callback) {
-    if (callback) this.#onNextOrderUpdate = callback;
-    game.settings.set("pf1e-util", SETTING_KEY, { order: [], hidden: [] });
+  /** Resets settings to empty (will be rebuilt on next render). */
+  resetSettings(callback) {
+    if (callback) this.#onNextUpdate = callback;
+    game.settings.set("pf1e-util", SETTINGS_KEY, { nativeOrder: [], tabs: {} });
   }
 }

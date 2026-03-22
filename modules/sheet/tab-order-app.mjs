@@ -3,10 +3,10 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export class TabOrderApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "pf1e-util-tab-order",
-    window: { title: "Actor Sheet Tab Order" },
-    position: { width: "auto", height: "auto" },
+    window: { title: "Actor Sheet Tab Settings" },
+    position: { width: 420, height: "auto" },
     actions: {
-      save: TabOrderApp.#onSave,
+      save:  TabOrderApp.#onSave,
       reset: TabOrderApp.#onReset,
     },
   };
@@ -16,8 +16,30 @@ export class TabOrderApp extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   async _prepareContext() {
-    const { order, hidden } = PF1EUtility.Sheets.ActorSheet.getOrder();
-    return { tabs: order, hidden };
+    const settings = PF1EUtility.Sheets.ActorSheet.getSettings();
+    const { nativeOrder, tabs } = settings;
+
+    if (!Object.keys(tabs).length) return { hasTabs: false };
+
+    const nativeIds = new Set(nativeOrder);
+    const systemLabel = game.system.id.toUpperCase();
+
+    const tabList = Object.entries(tabs)
+      .sort(([, a], [, b]) => a.order - b.order)
+      .map(([labelKey, cfg]) => ({
+        labelKey,
+        label:     cfg.label,
+        hidden:    cfg.hidden,
+        showRadio: cfg.overrides.length > 1,
+        overrides: cfg.overrides.map((id, i) => ({
+          id,
+          displayLabel: nativeIds.has(id) ? `Native ${systemLabel}` : id,
+          index:   i,
+          checked: i === cfg.currentIndex,
+        })),
+      }));
+
+    return { hasTabs: true, tabs: tabList };
   }
 
   _onRender(context, options) {
@@ -26,54 +48,57 @@ export class TabOrderApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   #activateDragSort() {
-    const form = this.element;
+    const list = this.element.querySelector(".tab-settings-list");
+    if (!list) return;
     let dragged = null;
 
-    form.addEventListener("dragstart", (e) => {
-      dragged = e.target.closest(".tab-order-item");
+    list.addEventListener("dragstart", (e) => {
+      dragged = e.target.closest(".tab-settings-row");
       dragged?.classList.add("dragging");
       e.dataTransfer.effectAllowed = "move";
     });
 
-    form.addEventListener("dragend", () => {
+    list.addEventListener("dragend", () => {
       dragged?.classList.remove("dragging");
       dragged = null;
     });
 
-    form.querySelectorAll(".tab-order-nav").forEach((nav) => {
-      nav.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        if (!dragged) return;
-
-        const target = e.target.closest(".tab-order-item");
-        if (target && target !== dragged) {
-          const rect = target.getBoundingClientRect();
-          const after = e.clientX > rect.left + rect.width / 2;
-          after ? target.after(dragged) : target.before(dragged);
-        } else if (!target) {
-          nav.append(dragged);
-        }
-      });
+    list.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      if (!dragged) return;
+      const target = e.target.closest(".tab-settings-row");
+      if (target && target !== dragged) {
+        const rect  = target.getBoundingClientRect();
+        const after = e.clientY > rect.top + rect.height / 2;
+        after ? target.after(dragged) : target.before(dragged);
+      }
     });
   }
 
   static #onSave() {
-    const visible = Array.from(
-      this.element.querySelectorAll('[data-zone="visible"] .tab-order-item')
-    ).map((el) => el.dataset.tabId);
+    const settings = PF1EUtility.Sheets.ActorSheet.getSettings();
+    const newTabs  = Object.fromEntries(
+      Object.entries(settings.tabs).map(([k, v]) => [k, { ...v }])
+    );
 
-    const hidden = Array.from(
-      this.element.querySelectorAll('[data-zone="hidden"] .tab-order-item')
-    ).map((el) => el.dataset.tabId);
+    this.element.querySelectorAll(".tab-settings-row").forEach((row, i) => {
+      const labelKey = row.dataset.labelKey;
+      if (!newTabs[labelKey]) return;
 
-    PF1EUtility.Sheets.ActorSheet.saveOrder(visible, hidden);
+      const hidden  = row.querySelector(".tab-hidden-check").checked;
+      const checked = row.querySelector("input[type='radio']:checked");
+      const currentIndex = checked ? parseInt(checked.value) : newTabs[labelKey].currentIndex;
+
+      newTabs[labelKey] = { ...newTabs[labelKey], hidden, order: i, currentIndex };
+    });
+
+    PF1EUtility.Sheets.ActorSheet.saveSettings({ ...settings, tabs: newTabs });
     Object.values(ui.windows).filter((w) => w.actor).forEach((s) => s.render());
     this.close();
   }
 
   static #onReset() {
-    const dialog = this;
-    PF1EUtility.Sheets.ActorSheet.clearOrder(() => dialog.render());
+    PF1EUtility.Sheets.ActorSheet.resetSettings(() => this.render());
     Object.values(ui.windows).filter((w) => w.actor).forEach((s) => s.render());
   }
 }
