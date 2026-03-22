@@ -65,17 +65,21 @@ function sortFeatures(features) {
 }
 
 function buildClassGroups(actor) {
-  const actorClassNames = new Set(actor.items.filter(i => i.type === 'class').map(i => i.name));
+  // tag → class item for matching features by system.class
+  const tagMap = new Map();
+  for (const classItem of actor.items.filter(i => i.type === 'class')) {
+    if (classItem.system.tag) tagMap.set(classItem.system.tag, classItem);
+  }
+
   const classMap = new Map();
   for (const classItem of actor.items.filter(i => i.type === 'class')) {
     classMap.set(classItem.name, { name: classItem.name, tag: classItem.system.tag ?? '', level: classItem.system.level ?? null, sort: classItem.sort, features: [], isOther: false });
   }
   for (const item of actor.items) {
     if (item.type !== 'feat' || item.system.subType !== 'classFeat') continue;
-    const className = item.system.associations?.classes?.[0];
-    const groupKey = (className && actorClassNames.has(className)) ? className : 'Other';
+    const classItem = item.system.class ? tagMap.get(item.system.class) : null;
+    const groupKey  = classItem ? classItem.name : 'Other';
     if (!classMap.has(groupKey)) {
-      const classItem = groupKey !== 'Other' ? actor.items.find(i => i.type === 'class' && i.name === groupKey) : null;
       classMap.set(groupKey, { name: groupKey, tag: classItem?.system.tag ?? '', level: classItem?.system.level ?? null, sort: classItem?.sort ?? Infinity, features: [], isOther: groupKey === 'Other' });
     }
     classMap.get(groupKey).features.push({
