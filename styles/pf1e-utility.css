@@ -67,7 +67,8 @@
 }
 
 .tab-settings-nav {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   cursor: default;
 }
 
