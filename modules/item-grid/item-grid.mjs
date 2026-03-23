@@ -354,7 +354,7 @@ class ItemDataGrid_Control {
   #id = '';
   #name = '';
   #module = '';
-
+  #wrapperid = '';
   get name()   { return this.#name; }
   get id()     { return this.#id; }
 
@@ -363,9 +363,10 @@ class ItemDataGrid_Control {
   /** @type {number} Horizontal padding in px added inside the cell on each side. */
   padding   = 0;
   /** @type {string} CSS classes applied to the outer cell span only (not the inner element). */
-  cellClass = '';
-  cssclass  = '';
-  title    = '';
+  cellClass    = '';
+  cssclass     = '';
+  title        = '';
+  eventwrapper = false;
 
   events = {
     click:       'onClick',
@@ -378,6 +379,7 @@ class ItemDataGrid_Control {
     mousemove:   'onMouseMove',
     focus:       undefined,
     blur:        undefined,
+    focusout:    undefined,
     keydown:     undefined,
     keyup:       undefined,
     keypress:    undefined,
@@ -391,6 +393,7 @@ class ItemDataGrid_Control {
     touchmove:   undefined,
     change:      undefined,
   };
+  _events = {}
   data = {
 
   }
@@ -400,6 +403,7 @@ class ItemDataGrid_Control {
       id:         this.#id     ? ` data-id="${this.#id}"`                                 : '',
       name:       this.#name   ? ` data-name="${this.#name}"`                             : '',
       module:     this.#module ? ` data-module="${this.#module}"`                         : '',
+      wrapperid:     this.#wrapperid ? ` data-id="${this.#wrapperid}"`                         : '',
       cssclass:   this.cssclass || '',
       title:      this.title   ? ` data-title="${this.title}" title="${this.title}"`      : '',
       customdata: Object.entries(this.data).map(([k, v]) => ` data-custom-${k}="${v}"`).join(''),
@@ -418,37 +422,43 @@ class ItemDataGrid_Control {
     const style = this.width === 'flex'
       ? `flex:1${p}`
       : `width:${this.width}px;flex:0 0 ${this.width}px${p}`;
-    return `<span class="pf1e-util-ig-cell ${this.cellClass}" style="${style}">${this.renderTemplate()}</span>`;
+    return `<span class="pf1e-util-ig-cell ${this.cellClass}" data-id="${this.#wrapperid}"  style="${style}">${this.renderTemplate()}</span>`;
   }
+  clearWrapper(){
+    this.#wrapperid = '';
+  }
+  hookEvents(element, actor) {
+    if (!this.#id && !this.#wrapperid) return;
+    let id = this.#id;
+    if (this.eventwrapper || !id) id = this.#wrapperid;
 
-  hookEvents(element,actor) {
-    if (!this.#id) return;
-    const els = element.querySelectorAll(`[data-id="${this.#id}"]`);
+    const els = element.querySelectorAll(`[data-id="${id}"]`);
     if (!els.length) return;
-    const bound = {};
-    for (const [event, handlerName] of Object.entries(this.events)) {
-      if (handlerName && typeof this[handlerName] === 'function') {
-        bound[event] = this[handlerName].bind(this);
-      }
-    }
+
+    const allEvents = new Set([...Object.keys(this._events), ...Object.keys(this.events)]);
+
     els.forEach(el => {
-      for (const [event, fn] of Object.entries(bound)) {
-        const fun = (e) => {
+      for (const event of allEvents) {
+        const internalFn = typeof this._events[event] === 'function' ? this._events[event] : null;
+        const handlerName = this.events[event];
+        const externalFn = handlerName && typeof this[handlerName] === 'function' ? this[handlerName].bind(this) : null;
+        if (!internalFn && !externalFn) continue;
+
+        el.addEventListener(event, (e) => {
           const row = e.target.closest('[data-row-type]');
           if (!row) return;
-          const data = {
-              row:{ ...row.dataset}
-              ,cell:{...e.target.dataset }};
+          const data = { row: { ...row.dataset }, cell: { ...e.target.dataset } };
           const item = data.row.rowId ? actor.items.get(data.row.rowId) : undefined;
-          fn(actor, item, data, row, e);
-        }
-        el.addEventListener(event, fun);
+          internalFn?.(actor, item, data, row, e);
+          externalFn?.(actor, item, data, row, e);
+        });
       }
     });
   }
 
   constructor(name, module) {
     this.#id     = `${name}-${crypto.randomUUID()}`;
+    this.#wrapperid = crypto.randomUUID()
     this.#name   = name;
     this.#module = module ?? '';
   }
@@ -495,7 +505,9 @@ class ItemDataGrid_Label extends ItemDataGrid_Control {
   }
 
   constructor(name, module, options = {}) {
+
     super(name, module);
+    this.eventwrapper = true;
     this.value    = options.value    ?? `{{${name}}}`;
     this.cssclass = options.cssclass ?? '';
     this.title    = options.title    ?? '';
@@ -516,40 +528,35 @@ class ItemDataGrid_LabelEdit extends ItemDataGrid_Control {
          + `<input type="text" class="pf1e-util-ig-editable-input ${args.cssclass}" data-id="${this.id}-input" value="${this.value}" data-value="${this.value}" style="display:none"${args.name}${args.module}${args.customdata}>`;
   }
 
-  hookEvents(element, actor) {
-    element.querySelectorAll(`[data-id="${this.id}-display"]`).forEach(display => {
-      const input = display.nextElementSibling;
-      if (!input) return;
-
-      display.addEventListener('click', () => {
-        display.style.display = 'none';
-        input.style.display   = '';
-        input.focus();
-      });
-
-      input.addEventListener('blur', (e) => {
-        if (this.filter && !this.filter.test(input.value)) {
-          input.value = display.dataset.value;
-        } else {
-          display.dataset.value = input.value;
-          if (typeof this.onChange === 'function') {
-            const ctx = resolveEventContext(e, actor);
-            if (ctx) this.onChange(ctx.actor, ctx.item, ctx.data, ctx.row, e);
-          }
-        }
-        input.style.display   = 'none';
-        display.style.display = '';
-      });
-    });
-  }
-
   constructor(name, module, options = {}) {
     super(name, module);
+    this.eventwrapper = true;
     this.value    = options.value    ?? `{{${name}}}`;
     this.cssclass = options.cssclass ?? '';
     this.title    = options.title    ?? '';
     this.filter   = options.filter   ?? null;
     if (options.onChange) this.onChange = options.onChange;
+    this._events.click = (_actor, _item, _data, row, _e) => {
+      const display = row.querySelector(`[data-id="${this.id}-display"]`);
+      const input   = display?.nextElementSibling;
+      if (!display || !input) return;
+      display.style.display = 'none';
+      input.style.display   = '';
+      input.focus();
+    };
+    this._events.focusout = (actor, item, data, row, e) => {
+      const display = row.querySelector(`[data-id="${this.id}-display"]`);
+      const input   = display?.nextElementSibling;
+      if (!display || !input) return;
+      if (this.filter && !this.filter.test(input.value)) {
+        input.value = display.dataset.value;
+      } else {
+        display.dataset.value = input.value;
+        this.onChange?.(actor, item, data, row, e);
+      }
+      input.style.display   = 'none';
+      display.style.display = '';
+    };
   }
 }
 
@@ -565,25 +572,16 @@ class ItemDataGrid_Slider extends ItemDataGrid_Control {
     return `<input type="range" class="pf1e-util-ig-slider ${args.cssclass}" data-id="${this.id}-slider" min="${this.min}" max="${this.max}" value="${this.value}" data-value="${this.value}"${args.title}${args.name}${args.module}${args.customdata}>`;
   }
 
-  hookEvents(element, actor) {
-    element.querySelectorAll(`[data-id="${this.id}-slider"]`).forEach(slider => {
-      slider.addEventListener('change', (e) => {
-        if (typeof this.onChange === 'function') {
-          const ctx = resolveEventContext(e, actor);
-          if (ctx) this.onChange(ctx.actor, ctx.item, ctx.data, ctx.row, e);
-        }
-      });
-    });
-  }
-
   constructor(name, module, options = {}) {
     super(name, module);
+    this.eventwrapper = true;
     this.value    = options.value    ?? `{{${name}.value}}`;
     this.min      = options.min      ?? `{{${name}.min}}`;
     this.max      = options.max      ?? `{{${name}.max}}`;
     this.cssclass = options.cssclass ?? '';
     this.title    = options.title    ?? '';
     if (options.onChange) this.onChange = options.onChange;
+    this._events.change = (actor, item, data, row, e) => this.onChange?.(actor, item, data, row, e);
   }
 }
 
@@ -685,31 +683,26 @@ class ItemDataGrid_Collapse extends ItemDataGrid_Control {
          + `</span>`;
   }
 
-  hookEvents(element, _actor) {
-    element.querySelectorAll(`[data-id="${this.id}"]`).forEach(el => {
-      el.addEventListener('click', () => {
-        let target;
-        if (el.closest('.pf1e-util-ig-header')) {
-          target = el.closest('.pf1e-util-ig-section')?.querySelector('.pf1e-util-ig-header-body');
-        } else if (el.closest('.pf1e-util-ig-subheader')) {
-          target = el.closest('.pf1e-util-ig-subheader')?.nextElementSibling?.classList.contains('pf1e-util-ig-subheader-body')
-            ? el.closest('.pf1e-util-ig-subheader').nextElementSibling
-            : null;
-        } else if (el.closest('.pf1e-util-ig-item')) {
-          target = el.closest('.pf1e-util-ig-item')?.nextElementSibling?.classList.contains('pf1e-util-ig-item-body')
-            ? el.closest('.pf1e-util-ig-item').nextElementSibling
-            : null;
-        }
-        if (!target) return;
-        const collapsed = target.classList.toggle('pf1e-util-ig-collapsed');
-        el.querySelector('.pf1e-util-ig-collapse-closed').style.display = collapsed ? '' : 'none';
-        el.querySelector('.pf1e-util-ig-collapse-open').style.display   = collapsed ? 'none' : '';
-      });
-    });
-  }
-
   constructor(name, module) {
     super(name, module);
+    this._events.click = (_actor, _item, _data, _row, e) => {
+      const el = e.target.closest('.pf1e-util-ig-collapse');
+      if (!el) return;
+      let target;
+      if (el.closest('.pf1e-util-ig-header')) {
+        target = el.closest('.pf1e-util-ig-section')?.querySelector('.pf1e-util-ig-header-body');
+      } else if (el.closest('.pf1e-util-ig-subheader')) {
+        const sh = el.closest('.pf1e-util-ig-subheader');
+        target = sh?.nextElementSibling?.classList.contains('pf1e-util-ig-subheader-body') ? sh.nextElementSibling : null;
+      } else if (el.closest('.pf1e-util-ig-item')) {
+        const itemEl = el.closest('.pf1e-util-ig-item');
+        target = itemEl?.nextElementSibling?.classList.contains('pf1e-util-ig-item-body') ? itemEl.nextElementSibling : null;
+      }
+      if (!target) return;
+      const collapsed = target.classList.toggle('pf1e-util-ig-collapsed');
+      el.querySelector('.pf1e-util-ig-collapse-closed').style.display = collapsed ? '' : 'none';
+      el.querySelector('.pf1e-util-ig-collapse-open').style.display   = collapsed ? 'none' : '';
+    };
   }
 }
 
@@ -822,18 +815,6 @@ class ItemDataGrid_Checkbox extends ItemDataGrid_Control {
     return `<input type="checkbox" class="pf1e-util-ig-checkbox ${args.cssclass}" data-id="${this.id}" data-value="${this.value}" {{#if ${this.value}}}checked{{/if}}${disabled}${args.title}${args.name}${args.module}${args.customdata}>`;
   }
 
-  hookEvents(element, actor) {
-    if (!this.editable) return;
-    element.querySelectorAll(`[data-id="${this.id}"]`).forEach(el => {
-      el.addEventListener('change', (e) => {
-        if (typeof this.onChange === 'function') {
-          const ctx = resolveEventContext(e, actor);
-          if (ctx) this.onChange(ctx.actor, ctx.item, ctx.data, ctx.row, e);
-        }
-      });
-    });
-  }
-
   constructor(name, module, options = {}) {
     super(name, module);
     this.value    = options.value    ?? `${name}`;
@@ -841,6 +822,9 @@ class ItemDataGrid_Checkbox extends ItemDataGrid_Control {
     this.cssclass = options.cssclass ?? '';
     this.title    = options.title    ?? '';
     if (options.onChange) this.onChange = options.onChange;
+    if (this.editable) {
+      this._events.change = (actor, item, data, row, e) => this.onChange?.(actor, item, data, row, e);
+    }
   }
 }
 
@@ -858,17 +842,6 @@ class ItemDataGrid_Select extends ItemDataGrid_Control {
     return `<select class="pf1e-util-ig-select ${args.cssclass}" data-id="${this.id}" data-value="${this.value}"${args.title}${args.name}${args.module}${args.customdata}>${opts}</select>`;
   }
 
-  hookEvents(element, actor) {
-    element.querySelectorAll(`[data-id="${this.id}"]`).forEach(el => {
-      el.addEventListener('change', (e) => {
-        if (typeof this.onChange === 'function') {
-          const ctx = resolveEventContext(e, actor);
-          if (ctx) this.onChange(ctx.actor, ctx.item, ctx.data, ctx.row, e);
-        }
-      });
-    });
-  }
-
   constructor(name, module, options = {}) {
     super(name, module);
     this.value    = options.value    ?? `{{${name}}}`;
@@ -876,6 +849,7 @@ class ItemDataGrid_Select extends ItemDataGrid_Control {
     this.cssclass = options.cssclass ?? '';
     this.title    = options.title    ?? '';
     if (options.onChange) this.onChange = options.onChange;
+    this._events.change = (actor, item, data, row, e) => this.onChange?.(actor, item, data, row, e);
   }
 }
 
