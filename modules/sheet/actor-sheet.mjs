@@ -238,6 +238,9 @@ async function applyOrder(app, html, registrations) {
     const reg = registrations.get(tab.id);
     if (!reg || nav.querySelector(`a[data-tab="${tab.id}"]`)) continue;
 
+    const _show = typeof reg.show === 'function' ? reg.show(app.actor) : reg.show;
+    if (!(_show ?? true)) continue;
+
     const context    = reg.data ? await reg.data(app.actor) : app.actor;
     const htmlString = await renderTemplate(reg.template, context);
     if (!htmlString) continue;
