@@ -1,7 +1,7 @@
 {
   "id": "pf1e-utility",
   "title": "PF1e Util",
-  "version": "0.1.003",
+  "version": "0.1.004",
   "compatibility": {
     "minimum": "13",
     "verified": "13"
