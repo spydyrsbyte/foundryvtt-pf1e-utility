@@ -928,6 +928,23 @@
   font-size: var(--font-size-12, 12px);
 }
 
+.pf1e-util-ig-editable {
+  display: block;
+  width: 100%;
+  min-height: 1em;
+  cursor: text;
+}
+
+.pf1e-util-ig-editable-input {
+  width: 100%;
+  height: 100%;
+  padding: 0 2px;
+  font-size: inherit;
+  border: 1px solid #999;
+  background: #fff;
+  box-sizing: border-box;
+}
+
 /* ---- Item Grid structure ---- */
 
 .pf1e-util-ig-header-body,
